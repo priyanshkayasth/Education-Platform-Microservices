@@ -150,6 +150,17 @@ export class CoursesController {
     return this.coursesService.findAll();
   }
 
+    @Get("stats")
+  async getAdminStats() {
+    const totalCourses = await this.coursesService.countCourses();
+    const recentCourses = await this.coursesService.getRecentCourses(5);
+
+    return {
+      totalCourses,
+      recentCourses,
+    };
+}
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.coursesService.findOne(id);
@@ -166,4 +177,7 @@ export class CoursesController {
     const instructorId = req.headers['x-user-id'];
     return this.coursesService.remove(id, instructorId);
   }
+
+
+
 }

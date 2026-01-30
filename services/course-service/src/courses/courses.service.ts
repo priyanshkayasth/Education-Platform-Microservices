@@ -131,4 +131,17 @@ export class CoursesService {
   async findByInstructor(instructorId: string) {
     return this.courseModel.find({ instructorId });
   }
+
+  async countCourses() {
+  return this.courseModel.countDocuments();
+}
+
+async getRecentCourses(limit = 5) {
+  return this.courseModel
+    .find()
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .select("title instructor createdAt");
+}
+
 }

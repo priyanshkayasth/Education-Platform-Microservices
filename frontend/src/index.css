@@ -2,12 +2,23 @@
 @plugin "daisyui";
 
 @layer base {
-  :root {
+  /* 🌞 LIGHT THEME */
+  :root[data-theme="light"] {
     --p: 217 91% 60%;   /* primary - blue */
     --s: 142 71% 45%;   /* secondary - green */
     --a: 38 92% 50%;
     --n: 222 47% 11%;
-    --b1: 0 0% 100%;
-    --b2: 210 40% 96%;
+    --b1: 0 0% 100%;   /* background */
+    --b2: 210 40% 96%; /* surface */
+  }
+
+  /* 🌙 DARK THEME */
+  :root[data-theme="dark"] {
+    --p: 217 91% 60%;
+    --s: 142 71% 45%;
+    --a: 38 92% 50%;
+    --n: 210 40% 98%;
+    --b1: 222 47% 11%;
+    --b2: 223 47% 18%;
   }
 }
