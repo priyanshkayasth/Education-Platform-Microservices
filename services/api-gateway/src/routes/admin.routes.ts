@@ -53,7 +53,7 @@ export class AdminRoutes {
   @Get('dashboard')
 async getAdminDashboard(@Req() req) {
   const headers = {
-    cookie: req.headers.cookie, // 🔥 forward cookies
+    cookie: req.headers.cookie, 
   };
 
   const [authRes, courseRes] = await Promise.all([

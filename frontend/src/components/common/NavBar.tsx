@@ -77,7 +77,7 @@ export default function Navbar() {
             </NavLink>
           )}
 
-          {isInstructor && (
+          {/* {isInstructor && (
             <NavLink
               to="/instructor/view-course"
               className={linkClass}
@@ -87,7 +87,7 @@ export default function Navbar() {
                 View Course
               </span>
             </NavLink>
-          )}
+          )} */}
         </div>
 
         {/* RIGHT */}

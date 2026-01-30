@@ -18,6 +18,7 @@ import EditCourse from "./pages/instructor/EditCourse";
 import LessonPlayer from "./pages/LessonPlayer";
 import UsersPage from "./pages/admin/UserPage";
 import AdminHome from "./pages/admin/AdminHome";
+import InstructorHome from "./pages/instructor/InstructorHome";
 
 function App() {
   return (
@@ -45,7 +46,7 @@ function App() {
 
         {/* PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
-          
+
           {/* STUDENT */}
           <Route
             path="/student"
@@ -74,28 +75,27 @@ function App() {
               </RoleRoute>
             }
           >
-            <Route index element={<div>Instructor Home</div>} />
+            <Route index element={<InstructorHome/>} />
             <Route path="add-course" element={<InstructorAddCourse />} />
             <Route path="view-course" element={<InstructorCourses />} />
             <Route path="edit-course/:courseId" element={<EditCourse />} />
           </Route>
 
           {/* ADMIN */}
-          {/* ADMIN */}
-<Route
-  path="/admin"
-  element={
-    <RoleRoute allowedRoles={["admin"]}>
-      <AdminDashboard />
-    </RoleRoute>
-  }
->
-  {/* Dashboard Home */}
-  <Route index element={<AdminHome />} />
+          <Route
+            path="/admin"
+            element={
+              <RoleRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </RoleRoute>
+            }
+          >
+            {/* Dashboard Home */}
+            <Route index element={<AdminHome />} />
 
-  {/* Users Page */}
-  <Route path="users" element={<UsersPage />} />
-</Route>
+            {/* Users Page */}
+            <Route path="users" element={<UsersPage />} />
+          </Route>
 
         </Route>
 

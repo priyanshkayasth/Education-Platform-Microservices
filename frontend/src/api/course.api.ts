@@ -31,6 +31,7 @@ export interface AddCoursePayload {
   title: string;
   description: string;
   lessons: LessonPayload[];
+   isPublished?: boolean;
 }
 
 export interface UpdateCoursePayload
