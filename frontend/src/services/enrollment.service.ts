@@ -16,22 +16,24 @@ export const EnrollmentService = {
     return res.data;
   },
 
- async updateVideoProgress(data: {
-  courseId: string;
-  lessonId: string;
-  watchedSeconds: number;
-  duration: number;
-}) {
-  return updateVideoProgressApi(data);
-},
+  async updateVideoProgress(data: {
+    courseId: string;
+    lessonId: string;
+    watchedSeconds: number;
+    duration: number;
+    totalLessons: number;
+  }) {
+    return updateVideoProgressApi(data);
+  },
 
-async updateAssignmentProgress(data: {
-  courseId: string;
-  lessonId: string;
-  score?: number;
-}) {
-  return updateAssignmentProgressApi(data);
-}
+  async updateAssignmentProgress(data: {
+    courseId: string;
+    lessonId: string;
+    score?: number;
+    totalLessons: number;
+  }) {
+    return updateAssignmentProgressApi(data);
+  }
 
 
 };

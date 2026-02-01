@@ -1,4 +1,4 @@
-import { PlusCircle, ViewIcon, Menu } from "lucide-react";
+import { PlusCircle, Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { NavLink, Link } from "react-router-dom";
 import { notificationService } from "../../services/notification.service";
@@ -92,8 +92,8 @@ export default function Navbar() {
 
         {/* RIGHT */}
         <div className="flex items-center gap-4">
-        
-          <ThemeToggle/>
+
+          <ThemeToggle />
           <button
             onClick={handleLogout}
             className="btn btn-sm btn-outline btn-primary"

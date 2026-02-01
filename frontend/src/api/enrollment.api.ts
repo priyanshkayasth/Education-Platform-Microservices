@@ -14,6 +14,7 @@ export const updateVideoProgressApi = (data: {
   lessonId: string;
   watchedSeconds: number;
   duration: number;
+  totalLessons: number;
 }) =>
   api.post("/enrollments/progress/video", data);
 
@@ -22,5 +23,6 @@ export const updateAssignmentProgressApi = (data: {
   courseId: string;
   lessonId: string;
   score?: number;
+  totalLessons: number;
 }) =>
   api.post("/enrollments/progress/assignment", data);

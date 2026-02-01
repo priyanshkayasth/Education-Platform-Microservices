@@ -17,22 +17,22 @@ export class EnrollmentService {
   constructor(
     @InjectModel(Enrollment.name)
     private enrollmentModel: Model<Enrollment>
-  ) {}
+  ) { }
 
   // Enroll student
- async enrollStudent(data: { studentId: string; courseId: string }) {
-  try {
-    return await this.enrollmentModel.create({
-      studentId: data.studentId,
-      courseId: data.courseId,
-    });
-  } catch (error) {
-    if (error.code === 11000) {
-      throw new ConflictException("Student already enrolled");
+  async enrollStudent(data: { studentId: string; courseId: string }) {
+    try {
+      return await this.enrollmentModel.create({
+        studentId: data.studentId,
+        courseId: data.courseId,
+      });
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException("Student already enrolled");
+      }
+      throw error;
     }
-    throw error;
   }
-}
 
   // Get enrollments by student
   async getEnrollmentByStudent(studentId: string) {
@@ -85,12 +85,15 @@ export class EnrollmentService {
       });
     }
 
-    enrollment.overallPercentage =
-      (enrollment.lessonsProgress.filter(
-        (p) => p.completed,
-      ).length /
-        enrollment.lessonsProgress.length) *
-      100;
+    // Calculate overall percentage based on TOTAL course lessons
+    const completedCount = enrollment.lessonsProgress.filter(
+      (p) => p.completed,
+    ).length;
+
+    enrollment.overallPercentage = Math.min(
+      100,
+      Math.round((completedCount / dto.totalLessons) * 100)
+    );
 
     return enrollment.save();
   }
@@ -127,12 +130,15 @@ export class EnrollmentService {
       });
     }
 
-    enrollment.overallPercentage =
-      (enrollment.lessonsProgress.filter(
-        (p) => p.completed,
-      ).length /
-        enrollment.lessonsProgress.length) *
-      100;
+    // Calculate overall percentage based on TOTAL course lessons
+    const completedCount = enrollment.lessonsProgress.filter(
+      (p) => p.completed,
+    ).length;
+
+    enrollment.overallPercentage = Math.min(
+      100,
+      Math.round((completedCount / dto.totalLessons) * 100)
+    );
 
     return enrollment.save();
   }

@@ -7,7 +7,7 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       // urls: ['amqp://admin:admin@rabbitmq:5672'],
-      urls: ['amqp://admin:admin@localhost:5672'],
+      urls: ['amqp://guest:guest@localhost:5672'],
 
       queue: 'notification_queue',
       queueOptions: {

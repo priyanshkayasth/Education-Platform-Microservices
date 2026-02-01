@@ -45,7 +45,7 @@ export default function Login() {
       await refetchUser()
       toast.success("Login successful")
 
-     
+
 
       setForm({
         email: "",
@@ -53,20 +53,14 @@ export default function Login() {
       })
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const data = error.response?.data;
-
-        const message =
-          typeof data?.message === "string"
-            ? data.message
-            : "Something went wrong. Please try again.";
-
+        const message = error.response?.data?.message || "Invalid email or password";
         toast.error(message);
         setError(message);
         return;
       }
 
-      toast.error("Something went wrong. Please try again.");
-      setError("Something went wrong. Please try again.");
+      toast.error("Network error. Please try again.");
+      setError("Network error. Please try again.");
     }
 
 
