@@ -1,12 +1,11 @@
 import { PlusCircle, Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { notificationService } from "../../services/notification.service";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
-  const navigate = useNavigate();
 
   if (loading) return null;
 
@@ -15,7 +14,6 @@ export default function Navbar() {
   const handleLogout = async () => {
     await logout();
     notificationService.success("Logged out successfully");
-    navigate("/login", { replace: true });
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -24,49 +22,41 @@ export default function Navbar() {
       : "text-gray-600 hover:text-primary transition";
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-base-200 bg-white/80 backdrop-blur-md pointer-events-auto">
+    <nav className="sticky top-0 z-50 w-full border-b border-base-200 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
 
         {/* LEFT */}
         <div className="flex items-center gap-4">
-
           {/* Mobile Menu */}
-          <div className="dropdown dropdown-end md:hidden overflow-visible">
-            <button tabIndex={0} className="btn btn-ghost btn-sm">
+          <div className="dropdown md:hidden">
+            <label tabIndex={0} className="btn btn-ghost btn-sm">
               <Menu className="h-5 w-5" />
-            </button>
+            </label>
             <ul
               tabIndex={0}
-              className="menu dropdown-content z-[100] mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
+              className="menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
             >
-              <li>
-                <NavLink to="/courses">Courses</NavLink>
-              </li>
-
+              <li><NavLink to="/courses">Courses</NavLink></li>
               {isInstructor && (
-                <li>
-                  <NavLink to="/instructor/add-course">
-                    Add Course
-                  </NavLink>
-                </li>
+                <>
+                  <li><NavLink to="/instructor/add-course">Add Course</NavLink></li>
+                  {/* <li><NavLink to="/instructor/view-course">View Course</NavLink></li> */}
+                </>
               )}
             </ul>
           </div>
 
           {/* Brand */}
-          <Link
-            to="/"
-            className="text-xl font-bold tracking-tight text-primary"
-          >
+          <Link to="/" className="text-xl font-bold tracking-tight text-primary">
             EduPlatform
           </Link>
 
           {/* Role Badge */}
-          {isInstructor && (
+          {/* {isInstructor && (
             <span className="badge badge-outline badge-primary">
               Instructor
             </span>
-          )}
+          )} */}
         </div>
 
         {/* CENTER (Desktop Nav) */}
@@ -86,10 +76,23 @@ export default function Navbar() {
               </span>
             </NavLink>
           )}
+
+          {/* {isInstructor && (
+            <NavLink
+              to="/instructor/view-course"
+              className={linkClass}
+            >
+              <span className="flex items-center gap-1">
+                <ViewIcon className="h-4 w-4" />
+                View Course
+              </span>
+            </NavLink>
+          )} */}
         </div>
 
         {/* RIGHT */}
         <div className="flex items-center gap-4">
+
           <ThemeToggle />
           <button
             onClick={handleLogout}
