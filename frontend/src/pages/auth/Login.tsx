@@ -2,7 +2,7 @@ import { useState } from "react"
 import toast from "react-hot-toast"
 import { authService } from "../../services/auth.service"
 import axios from "axios"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
 
 interface LoginForm {
@@ -17,10 +17,9 @@ export default function Login() {
   })
 
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [, setError] = useState<string | null>(null)
 
   const { refetchUser } = useAuth()
-  const navigate = useNavigate()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({
