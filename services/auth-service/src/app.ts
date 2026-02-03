@@ -13,6 +13,10 @@ app.use(cookieParser());
 
 app.use(express.json())
 
+app.get("/healthz", (req, res) => {
+  res.status(200).send("OK");
+});
+
 app.use('/auth',authRoutes)
 app.use('/user',userRoutes)
 
