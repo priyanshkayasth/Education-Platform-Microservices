@@ -6,16 +6,19 @@ import { EnrollmentRoutes } from './enrollment.routes';
 import { AuthRoutes } from './auth.routes';
 import { NotificationClientModule } from 'src/notification-client.module';
 import { HttpModule } from '@nestjs/axios';
-import {  AdminRoutes } from './admin.routes';
+import { AdminRoutes } from './admin.routes';
+import { AppConfigModule } from 'src/config/config.module';
 
 
 @Module({
   imports: [
+    AppConfigModule,
+
     HttpModule,
-    AuthModule,  
+    AuthModule,
     ProxyModule,
-    NotificationClientModule
+    NotificationClientModule,
   ],
-  controllers: [AuthRoutes,CourseRoutes,EnrollmentRoutes,AdminRoutes],
+  controllers: [AuthRoutes, CourseRoutes, EnrollmentRoutes, AdminRoutes],
 })
-export class RoutesModule {}
+export class RoutesModule { }

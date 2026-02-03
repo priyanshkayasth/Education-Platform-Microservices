@@ -1,0 +1,124 @@
+services:
+  # -------------------- DATABASE --------------------
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # -------------------- MESSAGE BROKER --------------------
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: appuser
+      RABBITMQ_DEFAULT_PASS: apppassword
+    
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -------------------- BACKEND SERVICES --------------------
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      MONGO_URI: mongodb://mongodb:27017/auth_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      JWT_SECRET: supersecretkey
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  course-service:
+    build: ./services/course-service
+    container_name: course-service
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: 3002
+      MONGODB_URL: mongodb://mongodb:27017/course-service
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      JWT_SECRET: supersecretkey
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  enrollment-service:
+    build: ./services/enrollment-service
+    container_name: enrollment-service
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: 3003
+      MONGO_URI: mongodb://mongodb:27017/enrollment-db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      JWT_SECRET: supersecretkey
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  # -------------------- WORKER (NO PORT) --------------------
+  notification-service:
+    build: ./services/notification-service
+    container_name: notification-service
+    restart: always
+    env_file:
+      - ./services/notification-service/.env
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/notification_db
+      RABBITMQ_URL: amqp://appuser:apppassword@rabbitmq:5672
+      JWT_SECRET: supersecretkey
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  # -------------------- API GATEWAY --------------------
+  api-gateway-service:
+    build: ./services/api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      COURSE_SERVICE_URL: http://course-service:3002
+      ENROLLMENT_SERVICE_URL: http://enrollment-service:3003
+      CORS_ORIGIN: http://localhost:5173
+      JWT_SECRET: supersecretkey
+      RABBITMQ_URL: amqp://appuser:apppassword@rabbitmq:5672
+
+
+    depends_on:
+      - auth-service
+      - course-service
+      - enrollment-service
+      - rabbitmq
+
+  # -------------------- FRONTEND --------------------
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:3000/api
+    depends_on:
+      - api-gateway-service
+
+
+# -------------------- VOLUMES --------------------
+volumes:
+  mongo_data:

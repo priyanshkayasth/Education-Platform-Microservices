@@ -1,22 +1,28 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ConfigModule.forRoot({ isGlobal: true }),
+
+    ClientsModule.registerAsync([
       {
         name: 'NOTIFICATION_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://guest:guest@localhost:5672'],
-          queue: 'notification_queue',
-          queueOptions: {
-            durable: true,
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [config.getOrThrow<string>('RABBITMQ_URL')],
+            queue: 'notification_queue',
+            queueOptions: {
+              durable: true,
+            },
           },
-        },
+        }),
       },
     ]),
   ],
-  exports: [ClientsModule], // ✅ THIS IS THE FIX
+  exports: [ClientsModule],
 })
-export class NotificationClientModule {}
+export class NotificationClientModule { }

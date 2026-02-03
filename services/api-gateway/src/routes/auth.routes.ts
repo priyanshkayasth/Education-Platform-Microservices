@@ -11,66 +11,79 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../common/constants/roles.enum';
-import { servicesConfig } from 'src/config/services.config';
+import { ServicesConfig } from 'src/config/services.config';
 
 @Controller('/api/auth')
 export class AuthRoutes {
-  constructor(private readonly proxy: ProxyService) { }
+  constructor(
+    private readonly proxy: ProxyService,
+    private readonly servicesConfig: ServicesConfig,
+  ) {}
 
-  //  PUBLIC ROUTES (NO GUARDS)
+  // PUBLIC ROUTES
 
   @Post('login')
   login(
     @Req() req,
-    @Res({ passthrough: true }) res
+    @Res({ passthrough: true }) res,
   ) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
 
   @Post('register')
   register(
     @Req() req,
-    @Res({ passthrough: true }) res
+    @Res({ passthrough: true }) res,
   ) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
 
+  // PROTECTED ROUTES
 
-  //  PROTECTED ROUTES (GUARDED)
-
-  // @Get('me')
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
-  // me(@Req() req) {
-  //   return this.proxy.forward(servicesConfig.authService, req);
-  // }
-
-  @Get("me")
+  @Get('me')
   @UseGuards(JwtAuthGuard)
-  me(@Req() req, @Res({ passthrough: true }) res) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+  me(
+    @Req() req,
+    @Res({ passthrough: true }) res,
+  ) {
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
 
-
-  // OPTIONAL: admin/internal access
   @Get('user/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   getUserById(
     @Req() req,
-    @Res({ passthrough: true }) res
+    @Res({ passthrough: true }) res,
   ) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
 
   @Post('logout')
   logout(
     @Req() req,
-    @Res({ passthrough: true }) res
+    @Res({ passthrough: true }) res,
   ) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
-
 }
-
-

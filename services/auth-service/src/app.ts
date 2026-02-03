@@ -21,9 +21,6 @@ app.use("/student", studentRoutes);
 app.use("/instructor", instructorRoutes);
 app.use("/admin", adminRoutes);
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
 
 
 export default app

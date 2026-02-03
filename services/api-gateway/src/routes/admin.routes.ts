@@ -11,7 +11,7 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../common/constants/roles.enum';
-import { servicesConfig } from 'src/config/services.config';
+import { ServicesConfig } from 'src/config/services.config';
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 
@@ -21,6 +21,8 @@ import { HttpService } from '@nestjs/axios';
 export class AdminRoutes {
   constructor(private readonly proxy: ProxyService,
       private readonly http: HttpService, 
+      private readonly servicesConfig: ServicesConfig,
+      
 
   ) {}
 
@@ -31,7 +33,7 @@ export class AdminRoutes {
   ) {
 
     return this.proxy.forward(
-      servicesConfig.authService,
+      this.servicesConfig.authService,
       req,
       res,
     );
@@ -44,7 +46,7 @@ export class AdminRoutes {
   ) {
 
     return this.proxy.forward(
-      servicesConfig.authService,
+      this.servicesConfig.authService,
       req,
       res,
     );
@@ -59,13 +61,13 @@ async getAdminDashboard(@Req() req) {
   const [authRes, courseRes] = await Promise.all([
     firstValueFrom(
       this.http.get(
-        `${servicesConfig.authService}/admin/stats`,
+        `${this.servicesConfig.authService}/admin/stats`,
         { headers },
       ),
     ),
     firstValueFrom(
       this.http.get(
-        `${servicesConfig.courseService}/courses/stats`,
+        `${this.servicesConfig.courseService}/courses/stats`,
         { headers },
       ),
     ),
