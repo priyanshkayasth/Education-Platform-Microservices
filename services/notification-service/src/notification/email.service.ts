@@ -1,52 +1,64 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+// import { Injectable, Logger } from '@nestjs/common';
+// import * as nodemailer from 'nodemailer';
+
+import { Injectable, Logger } from "@nestjs/common";
+import { Resend } from "resend";
+
+// @Injectable()
+// export class EmailService {
+//   private transporter;
+//   private logger = new Logger(EmailService.name);
+
+//   constructor() {
+//     this.transporter = nodemailer.createTransport({
+//       host: process.env.SMTP_HOST,
+//       port: Number(process.env.SMTP_PORT),
+//       secure: true,
+//       auth: {
+//         user: process.env.SMTP_USER,
+//         pass: process.env.SMTP_PASS,
+//       },
+//     pool: true,           // ✅ IMPORTANT
+//       maxConnections: 1,    // ✅ IMPORTANT
+//       maxMessages: 10,
+//     });
+//   }
+
+//   async sendEnrollmentConfirmation(
+//     email: string,
+//     courseName: string,
+//   ) {
+//     try {
+//       await this.transporter.sendMail({
+//         from: `"LMS" <${process.env.SMTP_USER}>`,
+//         to: email,
+//         subject: '🎉 Enrollment Confirmed',
+//         html: `
+//           <h2>Enrollment Successful</h2>
+//           <p>You are enrolled in <b>${courseName}</b>.</p>
+//           <p>Happy learning 🚀</p>
+//         `,
+//       });
+//     } catch (err) {
+//       this.logger.error('Email failed', err.message);
+//     }
+//   }
+// }
+
+
+
 
 @Injectable()
-export class EmailService implements OnModuleInit {
-  private transporter: nodemailer.Transporter;
-  private logger = new Logger(EmailService.name);
-
-  async onModuleInit() {
-    this.logger.log('🚀 Initializing EmailService');
-
-    // 🔎 ENV CHECK
-    this.logger.log(`SMTP_HOST = ${process.env.SMTP_HOST}`);
-    this.logger.log(`SMTP_PORT = ${process.env.SMTP_PORT}`);
-    this.logger.log(`SMTP_USER = ${process.env.SMTP_USER ? 'SET' : 'MISSING'}`);
-    this.logger.log(`SMTP_PASS = ${process.env.SMTP_PASS ? 'SET' : 'MISSING'}`);
-
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 465,
-      secure: true, // ✅ REQUIRED for 465
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      pool: true,
-      maxConnections: 1,
-      maxMessages: 10,
-      logger: true, // 🔥 Nodemailer internal logs
-      debug: true,  // 🔥 SMTP handshake logs
-    });
-
-    // 🔥 VERY IMPORTANT: verify connection on startup
-    try {
-      this.logger.log('🔍 Verifying SMTP connection...');
-      await this.transporter.verify();
-      this.logger.log('✅ SMTP connection verified');
-    } catch (err) {
-      this.logger.error('❌ SMTP verification FAILED');
-      this.logger.error(err);
-    }
-  }
+export class EmailService {
+  private readonly logger = new Logger(EmailService.name);
+  private readonly resend = new Resend(process.env.RESEND_API_KEY);
 
   async sendEnrollmentConfirmation(email: string, courseName: string) {
-    this.logger.log(`📨 Preparing email for: ${email}`);
+    this.logger.log(`📨 Sending email via Resend to ${email}`);
 
     try {
-      const info = await this.transporter.sendMail({
-        from: `"LMS" <${process.env.SMTP_USER}>`,
+      const result = await this.resend.emails.send({
+        from: 'LMS <onboarding@resend.dev>', // sandbox sender
         to: email,
         subject: '🎉 Enrollment Confirmed',
         html: `
@@ -56,14 +68,10 @@ export class EmailService implements OnModuleInit {
         `,
       });
 
-      // ✅ SUCCESS LOGS
-      this.logger.log(`✅ EMAIL SENT`);
-      this.logger.log(`MessageId: ${info.messageId}`);
-      this.logger.log(`Accepted: ${JSON.stringify(info.accepted)}`);
-      this.logger.log(`Rejected: ${JSON.stringify(info.rejected)}`);
-
+      this.logger.log('✅ Email sent via Resend');
+      this.logger.log(JSON.stringify(result));
     } catch (err) {
-      this.logger.error('❌ EMAIL SEND FAILED');
+      this.logger.error('❌ Resend email failed');
       this.logger.error(err);
     }
   }
