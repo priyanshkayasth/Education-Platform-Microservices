@@ -94,6 +94,9 @@ export class EmailService {
 
   async sendEnrollmentConfirmation(email: string, courseName: string) {
     this.logger.log(`📨 Sending email to ${email}`);
+    this.logger.log(
+    `FROM=${JSON.stringify(process.env.SENDGRID_FROM_EMAIL)}`
+  );
 
     try {
       const [response] = await sgMail.send({
