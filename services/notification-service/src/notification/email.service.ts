@@ -46,20 +46,59 @@ import { Resend } from "resend";
 // }
 
 
+//resend
 
+
+// @Injectable()
+// export class EmailService {
+//   private readonly logger = new Logger(EmailService.name);
+//   private readonly resend = new Resend(process.env.RESEND_API_KEY);
+
+//   async sendEnrollmentConfirmation(email: string, courseName: string) {
+//     this.logger.log(`📨 Sending email via Resend to ${email}`);
+
+//     try {
+//       const result = await this.resend.emails.send({
+//         from: 'LMS <onboarding@resend.dev>', // sandbox sender
+//         to: email,
+//         subject: '🎉 Enrollment Confirmed',
+//         html: `
+//           <h2>Enrollment Successful</h2>
+//           <p>You are enrolled in <b>${courseName}</b>.</p>
+//           <p>Happy learning 🚀</p>
+//         `,
+//       });
+
+//       this.logger.log('✅ Email sent via Resend');
+//       this.logger.log(JSON.stringify(result));
+//     } catch (err) {
+//       this.logger.error('❌ Resend email failed');
+//       this.logger.error(err);
+//     }
+//   }
+// }
+
+
+
+//SendGrid
+
+import * as sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class EmailService {
-  private readonly logger = new Logger(EmailService.name);
-  private readonly resend = new Resend(process.env.RESEND_API_KEY);
+  private logger = new Logger(EmailService.name);
+
+  constructor() {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY!); 
+  }
 
   async sendEnrollmentConfirmation(email: string, courseName: string) {
-    this.logger.log(`📨 Sending email via Resend to ${email}`);
+    this.logger.log(`📨 Sending email to ${email}`);
 
     try {
-      const result = await this.resend.emails.send({
-        from: 'LMS <onboarding@resend.dev>', // sandbox sender
+      const [response] = await sgMail.send({
         to: email,
+        from: process.env.SENDGRID_FROM_EMAIL!, 
         subject: '🎉 Enrollment Confirmed',
         html: `
           <h2>Enrollment Successful</h2>
@@ -68,11 +107,10 @@ export class EmailService {
         `,
       });
 
-      this.logger.log('✅ Email sent via Resend');
-      this.logger.log(JSON.stringify(result));
-    } catch (err) {
-      this.logger.error('❌ Resend email failed');
-      this.logger.error(err);
+      this.logger.log(` Email sent (status ${response.statusCode})`);
+    } catch (err: any) {
+      this.logger.error(' SendGrid email failed');
+      this.logger.error(err.response?.body || err);
     }
   }
 }
