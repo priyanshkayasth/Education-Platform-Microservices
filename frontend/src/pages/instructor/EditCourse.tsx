@@ -19,8 +19,7 @@ export default function EditCourse() {
   const handleUpdate = async (data: any) => {
     await courseService.updateCourse(courseId!, data);
     toast.success("Course updated");
-    // navigate("/instructor/view-course");
-    navigate("/instructor");
+    navigate("/instructor/view-course");
   };
 
   if (!course) return <div>Loading...</div>;
