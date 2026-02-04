@@ -82,37 +82,127 @@ import { Resend } from "resend";
 
 //SendGrid
 
-import  sgMail from '@sendgrid/mail';
+import sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class EmailService {
   private logger = new Logger(EmailService.name);
 
   constructor() {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY!); 
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
   }
 
   async sendEnrollmentConfirmation(email: string, courseName: string) {
     this.logger.log(`📨 Sending email to ${email}`);
-    this.logger.log(
-    `FROM=${JSON.stringify(process.env.SENDGRID_FROM_EMAIL)}`
-  );
+    this.logger.log(`FROM=${process.env.SENDGRID_FROM_EMAIL}`);
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Enrollment Confirmation</title>
+  <style>
+    body {
+      background-color: #f6f9fc;
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    .header {
+      background: #4f46e5;
+      color: #ffffff;
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .content {
+      padding: 30px;
+      color: #333333;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .footer {
+      background: #f3f4f6;
+      padding: 15px;
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .button {
+      display: inline-block;
+      margin: 20px 0;
+      padding: 12px 24px;
+      background: #4f46e5;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      LMS Notification
+    </div>
+
+    <div class="content">
+      <p>Hello 👋,</p>
+
+      <p>You have been successfully enrolled in the course:</p>
+
+      <p><b>${courseName}</b></p>
+
+      <p>
+        We’re excited to have you on board. Start learning anytime and
+        continue your journey with LMS 🚀
+      </p>
+
+      <a href="#" class="button">Go to Dashboard</a>
+
+      <p>
+        If you have any questions, just reply to this email.
+      </p>
+
+      <p>
+        Happy Learning,<br />
+        <b>LMS Team</b>
+      </p>
+    </div>
+
+    <div class="footer">
+      © ${new Date().getFullYear()} LMS. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+`;
 
     try {
       const [response] = await sgMail.send({
         to: email,
-        from: process.env.SENDGRID_FROM_EMAIL!, 
+        from: {
+          email: process.env.SENDGRID_FROM_EMAIL!,
+          name: 'LMS', // 👈 SHOWS LMS IN INBOX
+        },
         subject: '🎉 Enrollment Confirmed',
-        html: `
-          <h2>Enrollment Successful</h2>
-          <p>You are enrolled in <b>${courseName}</b>.</p>
-          <p>Happy learning 🚀</p>
-        `,
+        html,
       });
 
-      this.logger.log(` Email sent (status ${response.statusCode})`);
+      this.logger.log(`✅ Email sent (status ${response.statusCode})`);
     } catch (err: any) {
-      this.logger.error(' SendGrid email failed');
+      this.logger.error('❌ SendGrid email failed');
       this.logger.error(err.response?.body || err);
     }
   }
