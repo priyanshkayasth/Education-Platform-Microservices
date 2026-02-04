@@ -15,9 +15,6 @@ export class EmailService {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-       tls: {
-    rejectUnauthorized: false, 
-  },
     pool: true,           // ✅ IMPORTANT
       maxConnections: 1,    // ✅ IMPORTANT
       maxMessages: 10,
