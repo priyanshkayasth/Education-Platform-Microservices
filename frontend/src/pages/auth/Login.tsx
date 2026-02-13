@@ -78,7 +78,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     setGoogleLoading(true);
     // window.location.href = "http://localhost:3001/auth/google";
      const baseUrl = import.meta.env.VITE_AUTH_BASE_URL;
-    window.location.href = `${baseUrl}/auth/google`;
+    window.location.href = `${baseUrl}/api/auth/google`;
   };
 
   return (
