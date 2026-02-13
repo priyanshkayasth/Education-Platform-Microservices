@@ -100,7 +100,9 @@ export const googleCallback = async (req: Request, res: Response) => {
       secure:true,
       // secure:false,
       sameSite: "none", 
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      maxAge: 15 * 60 * 1000, // 15 minutes,
+     path:'/'
+
     });
 
     // Redirect to frontend (no token in URL)
