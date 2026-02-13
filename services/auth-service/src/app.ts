@@ -10,7 +10,13 @@ import passport from './config/passport.js'
 
 const app=express()
 
-app.use(cors())
+const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 app.use(cookieParser()); 
 
 app.use(express.json())
