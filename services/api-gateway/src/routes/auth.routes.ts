@@ -46,22 +46,22 @@ export class AuthRoutes {
     );
   }
 
-//  @Get('google')
-// google(@Res() res: any) {
-//   return res.redirect(
-//     `${this.servicesConfig.authService}/auth/google`
-//   );
-// }
+ @Get('google')
+google(@Res() res: any) {
+  return res.redirect(
+    `${this.servicesConfig.authService}/auth/google`
+  );
+}
 
 
-// @Get('google/callback')
-// googleCallback(@Res() res: any, @Req() req) {
-//   const query = new URLSearchParams(req.query as any).toString();
+@Get('google/callback')
+googleCallback(@Res() res: any, @Req() req) {
+  const query = new URLSearchParams(req.query as any).toString();
 
-//   return res.redirect(
-//     `${this.servicesConfig.authService}/auth/google/callback?${query}`
-//   );
-// }
+  return res.redirect(
+    `${this.servicesConfig.authService}/auth/google/callback?${query}`
+  );
+}
 
 
   // PROTECTED ROUTES
