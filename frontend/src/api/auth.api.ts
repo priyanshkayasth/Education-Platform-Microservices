@@ -16,10 +16,12 @@ export const registerUser=async(data:RegisterRequest)=>{
     return response.data
 }
 
-export const loginUser=async(data:LoginRequest)=>{
-    const response=await api.post(`/auth/login`,data)
-    return response.data
-}
+export const loginUser = async (data: LoginRequest) => {
+  const response = await api.post(`/auth/login`, data, {
+  });
+  return response.data;
+};
+
 
 export const getMe=async()=> {
     const response = await api.get("/auth/me");

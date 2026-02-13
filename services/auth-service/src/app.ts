@@ -6,6 +6,8 @@ import instructorRoutes from "./routes/instructor.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
+import passport from './config/passport.js'
+
 const app=express()
 
 app.use(cors())
@@ -16,6 +18,8 @@ app.use(express.json())
 app.get("/healthz", (req, res) => {
   res.status(200).send("OK");
 });
+
+app.use(passport.initialize());
 
 app.use('/auth',authRoutes)
 app.use('/user',userRoutes)

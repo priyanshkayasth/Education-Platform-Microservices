@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import * as authService from '../services/auth.service.js'
 import { HttpError } from "../utils/httpError.js";
+import jwt from "jsonwebtoken";
+
 export const register = async (req: Request, res: Response) => {
     try {
         const { name, email, password } = req.body
@@ -44,7 +46,7 @@ export const login = async (req: Request, res: Response) => {
       res.cookie("access_token", data.token, {
       httpOnly: true,
       sameSite: "none",
-    //   secure: false, // true in prod
+      // secure: false, // true in prod
       secure: true, // true in prod
       maxAge: 15 * 60 * 1000,
       path:'/'
@@ -71,6 +73,47 @@ export const login = async (req: Request, res: Response) => {
         });
     }
 }
+
+
+export const googleCallback = async (req: Request, res: Response) => {
+  try {
+    const user = req.user as any;
+
+    if (!user) {
+      return res.status(401).json({ message: "Authentication failed" });
+    }
+
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role || "user",
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "15m" }
+    );
+
+    // Set HTTP-only cookie
+    res.cookie("access_token", token, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production", // true in prod
+      secure:true,
+      // secure:false,
+      sameSite: "none", 
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    // Redirect to frontend (no token in URL)
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173/";
+
+return res.redirect(`${FRONTEND_URL}/`);
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
 
 export const me = (req: Request, res: Response) => {
   res.status(200).json({

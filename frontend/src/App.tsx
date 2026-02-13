@@ -19,6 +19,7 @@ import LessonPlayer from "./pages/LessonPlayer";
 import UsersPage from "./pages/admin/UserPage";
 import AdminHome from "./pages/admin/AdminHome";
 import InstructorHome from "./pages/instructor/InstructorHome";
+import HomeRedirect from "./routes/HomeRedirect";
 
 function App() {
   return (
@@ -47,6 +48,9 @@ function App() {
         {/* PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
 
+          <Route path="/" element={<HomeRedirect />} />
+
+
           {/* STUDENT */}
           <Route
             path="/student"
@@ -56,6 +60,7 @@ function App() {
               </RoleRoute>
             }
           />
+          
 
           <Route
             path="/courses/:courseId/lessons/:lessonId"

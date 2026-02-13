@@ -38,4 +38,15 @@ export class LessonDto {
     instructions: string;
     maxScore?: number;
   };
+
+  
+
+  @IsOptional()
+  @IsString()
+  videoUrl?: string;
+
+  // AI-generated summary (internal use)
+  @IsOptional()
+  @IsString()
+  summary?: string;
 }

@@ -49,7 +49,7 @@ export class JwtAuthGuard implements CanActivate {
         //  console.log("HEADERS:", request.headers);
         //   console.log("COOKIES:", request.cookies);
 
-        // 🔥 READ JWT FROM COOKIE
+        //  READ JWT FROM COOKIE
         const token = request.cookies?.access_token;
         //   console.log("TOKEN:", token);
 
@@ -62,9 +62,10 @@ export class JwtAuthGuard implements CanActivate {
 
             // attach user for downstream services
             request.user = {
-                userId: payload.id,
+                // userId: payload.id,
+                userId: payload.userId,
                 role: payload.role,
-                email: payload.email, // ✅ NOW TYPE-SAFE
+                email: payload.email, //  NOW TYPE-SAFE
 
             };
 
