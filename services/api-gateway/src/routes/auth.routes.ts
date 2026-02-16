@@ -49,6 +49,7 @@ export class AuthRoutes {
 
 @Get('google')
 google(@Req() req, @Res() res) {
+  req.url = '/auth/google';   // 
   return this.proxy.forward(
     this.servicesConfig.authService,
     req,
@@ -59,6 +60,10 @@ google(@Req() req, @Res() res) {
 
 @Get('google/callback')
 googleCallback(@Req() req, @Res() res) {
+  const query = new URLSearchParams(req.query as any).toString();
+
+  req.url = `/auth/google/callback?${query}`;  // 
+
   return this.proxy.forward(
     this.servicesConfig.authService,
     req,
