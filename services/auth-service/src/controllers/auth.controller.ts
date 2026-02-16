@@ -100,8 +100,6 @@ export const googleCallback = async (req: Request, res: Response) => {
       secure:true,
       // secure:false,
       sameSite: "none", 
-      domain: "education-platform-microservices.onrender.com", // 
-
       maxAge: 15 * 60 * 1000, // 15 minutes,
      path:'/'
 
