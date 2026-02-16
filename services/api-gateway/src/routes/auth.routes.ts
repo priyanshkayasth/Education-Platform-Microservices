@@ -47,26 +47,25 @@ export class AuthRoutes {
     );
   }
 
- @Get('google')
- @UseGuards(AuthGuard('google'))
-
-google(@Res() res: any) {
-  return res.redirect(
-    `${this.servicesConfig.authService}/auth/google`
+@Get('google')
+google(@Req() req, @Res() res) {
+  return this.proxy.forward(
+    this.servicesConfig.authService,
+    req,
+    res
   );
 }
 
 
 @Get('google/callback')
-@UseGuards(AuthGuard('google'))
-
-googleCallback(@Res() res: any, @Req() req) {
-  const query = new URLSearchParams(req.query as any).toString();
-
-  return res.redirect(
-    `${this.servicesConfig.authService}/auth/google/callback?${query}`
+googleCallback(@Req() req, @Res() res) {
+  return this.proxy.forward(
+    this.servicesConfig.authService,
+    req,
+    res
   );
 }
+
 
 
   // PROTECTED ROUTES
