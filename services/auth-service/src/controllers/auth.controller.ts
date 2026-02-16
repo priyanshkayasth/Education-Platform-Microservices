@@ -100,6 +100,8 @@ export const googleCallback = async (req: Request, res: Response) => {
       secure:true,
       // secure:false,
       sameSite: "none", 
+      domain: ".onrender.com",   //  REQUIRED for Google OAuth
+
       maxAge: 15 * 60 * 1000, // 15 minutes,
      path:'/'
 
