@@ -93,28 +93,39 @@ export const googleCallback = async (req: Request, res: Response) => {
       { expiresIn: "15m" }
     );
 
-    // Set HTTP-only cookie
+    // ✅ Set cookie
     res.cookie("access_token", token, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === "production", // true in prod
-      secure:true,
-      // secure:false,
-      sameSite: "none", 
-      maxAge: 15 * 60 * 1000, // 15 minutes,
-     path:'/'
-
+      secure: true,
+      sameSite: "none",
+      maxAge: 15 * 60 * 1000,
+      path: "/",
     });
 
-    // Redirect to frontend (no token in URL)
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173/";
+    // ✅ HTML redirect (fix for cookie drop)
+    const FRONTEND_URL =
+      process.env.FRONTEND_URL || "http://localhost:5173";
 
-return res.redirect(`${FRONTEND_URL}/`);
+    return res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta http-equiv="refresh" content="0;url=${FRONTEND_URL}/" />
+        </head>
+        <body>
+          <script>
+            window.location.href = "${FRONTEND_URL}/";
+          </script>
+        </body>
+      </html>
+    `);
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("Google callback error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 };
-
-
 
 
 export const me = (req: Request, res: Response) => {
