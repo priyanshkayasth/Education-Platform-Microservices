@@ -137,7 +137,7 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     const token = jwt.sign(
       {
-        userId: user._id,
+        id: user._id,
         email: user.email,
         role: user.role || "user",
       },
