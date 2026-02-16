@@ -12,6 +12,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../common/constants/roles.enum';
 import { ServicesConfig } from 'src/config/services.config';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/api/auth')
 export class AuthRoutes {
@@ -47,6 +48,8 @@ export class AuthRoutes {
   }
 
  @Get('google')
+ @UseGuards(AuthGuard('google'))
+
 google(@Res() res: any) {
   return res.redirect(
     `${this.servicesConfig.authService}/auth/google`
@@ -55,6 +58,8 @@ google(@Res() res: any) {
 
 
 @Get('google/callback')
+@UseGuards(AuthGuard('google'))
+
 googleCallback(@Res() res: any, @Req() req) {
   const query = new URLSearchParams(req.query as any).toString();
 
