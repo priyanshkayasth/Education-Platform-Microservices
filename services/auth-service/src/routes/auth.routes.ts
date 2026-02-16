@@ -1,5 +1,5 @@
 import express from 'express'
-import { googleCallback, login, logout, me, register } from '../controllers/auth.controller.js'
+import { googleCallback, login, logout, me, oauthLogin, register } from '../controllers/auth.controller.js'
 import { authenticate } from '../middlewares/authenticate.js'
 import passport from '../config/passport.js'
 
@@ -13,6 +13,9 @@ router.get('/test', (req, res) => {
 
 router.post('/register',register)
 router.post('/login',login)
+
+router.post('/oauth-login', oauthLogin)
+
 
 router.get(
   '/google',

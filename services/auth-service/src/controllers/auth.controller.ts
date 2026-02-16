@@ -75,6 +75,58 @@ export const login = async (req: Request, res: Response) => {
 }
 
 
+// export const googleCallback = async (req: Request, res: Response) => {
+//   try {
+//     const user = req.user as any;
+
+//     if (!user) {
+//       return res.status(401).json({ message: "Authentication failed" });
+//     }
+
+//     const token = jwt.sign(
+//       {
+//         userId: user._id,
+//         email: user.email,
+//         role: user.role || "user",
+//       },
+//       process.env.JWT_SECRET!,
+//       { expiresIn: "15m" }
+//     );
+
+//     // ✅ Set cookie
+//     res.cookie("access_token", token, {
+//       httpOnly: true,
+//       secure: true,
+//       sameSite: "none",
+//       maxAge: 15 * 60 * 1000,
+//       path: "/",
+//     });
+
+//     // ✅ HTML redirect (fix for cookie drop)
+//     const FRONTEND_URL =
+//       process.env.FRONTEND_URL || "http://localhost:5173";
+
+//     return res.send(`
+//       <!DOCTYPE html>
+//       <html>
+//         <head>
+//           <meta http-equiv="refresh" content="0;url=${FRONTEND_URL}/" />
+//         </head>
+//         <body>
+//           <script>
+//             window.location.href = "${FRONTEND_URL}/";
+//           </script>
+//         </body>
+//       </html>
+//     `);
+//   } catch (error) {
+//     console.error("Google callback error:", error);
+//     return res.status(500).json({
+//       message: "Internal server error",
+//     });
+//   }
+// };
+
 export const googleCallback = async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
@@ -93,32 +145,13 @@ export const googleCallback = async (req: Request, res: Response) => {
       { expiresIn: "15m" }
     );
 
-    // ✅ Set cookie
-    res.cookie("access_token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 15 * 60 * 1000,
-      path: "/",
-    });
-
-    // ✅ HTML redirect (fix for cookie drop)
     const FRONTEND_URL =
       process.env.FRONTEND_URL || "http://localhost:5173";
 
-    return res.send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta http-equiv="refresh" content="0;url=${FRONTEND_URL}/" />
-        </head>
-        <body>
-          <script>
-            window.location.href = "${FRONTEND_URL}/";
-          </script>
-        </body>
-      </html>
-    `);
+    // 👉 redirect with token (NO cookie here)
+    return res.redirect(
+      `${FRONTEND_URL}/oauth-success?token=${token}`
+    );
   } catch (error) {
     console.error("Google callback error:", error);
     return res.status(500).json({
@@ -153,5 +186,31 @@ export const logout = (req: Request, res: Response) => {
     });
   }
 
+  
 
 }
+
+
+export const oauthLogin = (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: "Token missing" });
+    }
+
+    res.cookie("access_token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "OAuth login success",
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "OAuth login failed" });
+  }
+};

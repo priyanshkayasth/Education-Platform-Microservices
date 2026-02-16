@@ -47,6 +47,17 @@ export class AuthRoutes {
     );
   }
 
+
+@Post('oauth-login')
+oauthLogin(@Req() req, @Res({ passthrough: true }) res) {
+  return this.proxy.forward(
+    this.servicesConfig.authService,
+    req,
+    res,
+  );
+}
+
+
 @Get('google')
 google(@Req() req, @Res() res) {
   req.url = '/auth/google';   // 

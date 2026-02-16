@@ -20,6 +20,7 @@ import UsersPage from "./pages/admin/UserPage";
 import AdminHome from "./pages/admin/AdminHome";
 import InstructorHome from "./pages/instructor/InstructorHome";
 import HomeRedirect from "./routes/HomeRedirect";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 function App() {
   return (
@@ -44,6 +45,14 @@ function App() {
             </PublicRoute>
           }
         />
+        <Route
+  path="/oauth-success"
+  element={
+    <PublicRoute>
+      <OAuthSuccess />
+    </PublicRoute>
+  }
+/>
 
         {/* PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
