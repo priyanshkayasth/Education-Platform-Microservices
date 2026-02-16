@@ -50,6 +50,9 @@ export class AuthRoutes {
 @Get('google')
 google(@Req() req, @Res() res) {
   req.url = '/auth/google';   // 
+
+    console.log('➡️ Gateway route HIT: /api/auth/google');
+  console.log('➡️ Rewritten URL:', req.url);
   return this.proxy.forward(
     this.servicesConfig.authService,
     req,
@@ -63,6 +66,9 @@ googleCallback(@Req() req, @Res() res) {
   const query = new URLSearchParams(req.query as any).toString();
 
   req.url = `/auth/google/callback?${query}`;  // 
+
+  console.log('➡️ Gateway route HIT: /api/auth/google/callback');
+  console.log('➡️ Rewritten URL:', req.url);
 
   return this.proxy.forward(
     this.servicesConfig.authService,

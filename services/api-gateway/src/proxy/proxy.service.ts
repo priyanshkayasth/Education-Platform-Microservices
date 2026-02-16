@@ -44,11 +44,18 @@ console.log("x-user-role:", req.user?.role);
         timeout: 5000,
         withCredentials: true,
         maxRedirects: 0, 
-        // validateStatus: () => true, 
-        validateStatus: (status) => status >= 200 && status < 300,
+        validateStatus: () => true, 
+        // validateStatus: (status) => status >= 200 && status < 300,
         
 
       });
+     if (response.status === 302 || response.status === 301) {
+  const location = response.headers['location'];
+
+  if (location) {
+    return res.redirect(location);
+  }
+}
        // 🔥 FORWARD SET-COOKIE HEADER
       const setCookie = response.headers["set-cookie"];
       if (setCookie) {
