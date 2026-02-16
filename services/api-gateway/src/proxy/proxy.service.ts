@@ -6,6 +6,8 @@ import { Response } from 'express';
 export class ProxyService {
   async forward(targetBaseUrl: string, req: any,res:Response) {
     console.log('🔥🔥 PROXY VERSION v3 RUNNING 🔥🔥');
+    console.log("➡️ Incoming req.originalUrl:", req.originalUrl);
+console.log("➡️ Incoming req.url:", req.url);
      console.log("x-user-id:", req.user?.userId);
 console.log("x-user-role:", req.user?.role);
 
@@ -16,6 +18,11 @@ console.log("x-user-role:", req.user?.role);
     const forwardPath = req.originalUrl
       .replace(/^\/api/, '')
       .replace(/\/$/, '');
+
+
+      console.log("➡️ Computed forwardPath:", forwardPath);
+console.log("➡️ Final target URL:", `${targetBaseUrl}${forwardPath}`);
+
 
     // clone headers
     const headers = { ...req.headers };
@@ -49,6 +56,9 @@ console.log("x-user-role:", req.user?.role);
         
 
       });
+      console.log("🔁 RESPONSE STATUS:", response.status);
+console.log("🔁 RESPONSE HEADERS:", response.headers);
+
      if (response.status === 302 || response.status === 301) {
   const location = response.headers['location'];
 
