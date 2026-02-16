@@ -4,12 +4,12 @@ import { Response } from 'express';
 
 @Injectable()
 export class ProxyService {
-  async forward(targetBaseUrl: string, req: any,res:Response) {
+  async forward(targetBaseUrl: string, req: any, res: Response) {
     console.log('🔥🔥 PROXY VERSION v3 RUNNING 🔥🔥');
     console.log("➡️ Incoming req.originalUrl:", req.originalUrl);
-console.log("➡️ Incoming req.url:", req.url);
-     console.log("x-user-id:", req.user?.userId);
-console.log("x-user-role:", req.user?.role);
+    console.log("➡️ Incoming req.url:", req.url);
+    console.log("x-user-id:", req.user?.userId);
+    console.log("x-user-role:", req.user?.role);
 
 
     // MUST exist
@@ -20,8 +20,8 @@ console.log("x-user-role:", req.user?.role);
       .replace(/\/$/, '');
 
 
-      console.log("➡️ Computed forwardPath:", forwardPath);
-console.log("➡️ Final target URL:", `${targetBaseUrl}${forwardPath}`);
+    console.log("➡️ Computed forwardPath:", forwardPath);
+    console.log("➡️ Final target URL:", `${targetBaseUrl}${forwardPath}`);
 
 
     // clone headers
@@ -50,27 +50,33 @@ console.log("➡️ Final target URL:", `${targetBaseUrl}${forwardPath}`);
         params: req.query,
         timeout: 5000,
         withCredentials: true,
-        maxRedirects: 0, 
-        validateStatus: () => true, 
+        maxRedirects: 0,
+        validateStatus: () => true,
         // validateStatus: (status) => status >= 200 && status < 300,
-        
+
 
       });
       console.log("🔁 RESPONSE STATUS:", response.status);
-console.log("🔁 RESPONSE HEADERS:", response.headers);
+      console.log("🔁 RESPONSE HEADERS:", response.headers);
 
-     if (response.status === 302 || response.status === 301) {
-  const location = response.headers['location'];
+      if (response.status === 302 || response.status === 301) {
+        const location = response.headers['location'];
 
-  if (location) {
-    return res.redirect(location);
-  }
-}
-       // 🔥 FORWARD SET-COOKIE HEADER
+        if (location) {
+          return res.redirect(location);
+        }
+      }
+      // 🔥 FORWARD SET-COOKIE HEADER
       const setCookie = response.headers["set-cookie"];
       if (setCookie) {
+        console.log("Forwarding set cookie",setCookie);
+        
         res.setHeader("set-cookie", setCookie);
       }
+
+      res.status(response.status
+        
+      )
 
       return response.data;
     } catch (error) {
@@ -81,7 +87,7 @@ console.log("🔁 RESPONSE HEADERS:", response.headers);
           error.response?.status || 500
         );
       }
-     
+
 
       throw new HttpException('Internal server error', 500);
     }
