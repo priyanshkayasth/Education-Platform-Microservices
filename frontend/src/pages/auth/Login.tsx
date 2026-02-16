@@ -23,7 +23,7 @@ export default function Login() {
   const { refetchUser, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // 🔁 Redirect if already logged in
+  //  Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
       navigate("/", { replace: true });
@@ -78,7 +78,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     setGoogleLoading(true);
     // window.location.href = "http://localhost:3001/auth/google";
      const baseUrl = import.meta.env.VITE_AUTH_BASE_URL;
-    window.location.href = `${baseUrl}/api/auth/google`;
+    window.location.href = `${baseUrl}/auth/google`;
   };
 
   return (
