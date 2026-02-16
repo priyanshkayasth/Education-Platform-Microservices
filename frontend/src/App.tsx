@@ -46,13 +46,13 @@ function App() {
           }
         />
         <Route
-  path="/oauth-success"
-  element={
-    <PublicRoute>
-      <OAuthSuccess />
-    </PublicRoute>
-  }
-/>
+          path="/oauth-success"
+          element={
+            <PublicRoute>
+              <OAuthSuccess />
+            </PublicRoute>
+          }
+        />
 
         {/* PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
@@ -69,7 +69,7 @@ function App() {
               </RoleRoute>
             }
           />
-          
+
 
           <Route
             path="/courses/:courseId/lessons/:lessonId"
@@ -89,7 +89,7 @@ function App() {
               </RoleRoute>
             }
           >
-            <Route index element={<InstructorHome/>} />
+            <Route index element={<InstructorHome />} />
             <Route path="add-course" element={<InstructorAddCourse />} />
             <Route path="view-course" element={<InstructorCourses />} />
             <Route path="edit-course/:courseId" element={<EditCourse />} />
