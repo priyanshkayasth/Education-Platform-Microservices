@@ -1,36 +1,32 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
 export default function OAuthSuccess() {
-  const navigate = useNavigate();
-  const { user, loading, refetchUser } = useAuth();
-
-  // Step 1: read token & fetch user
   useEffect(() => {
-    const token = new URLSearchParams(window.location.search).get("token");
+    console.log("OAuthSuccess loaded");
+
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    console.log("TOKEN FROM URL:", token);
 
     if (!token) {
-      navigate("/login");
+      window.location.href = "/login";
       return;
     }
 
+    // ✅ store token
     localStorage.setItem("access_token", token);
 
-    refetchUser();
-  }, [navigate, refetchUser]);
+    // 🔥 remove token from URL for safety
+    window.history.replaceState({}, document.title, "/");
 
-  // Step 2: when user becomes available → redirect
-  useEffect(() => {
-    if (!loading && user) {
-      navigate("/", { replace: true });
-    }
-  }, [loading, user, navigate]);
+    // 🔥 redirect to home (fresh reload so axios picks token)
+    window.location.href = "/";
+  }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <span className="loading loading-spinner loading-lg"></span>
-      <p className="ml-3">Signing you in...</p>
+    <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh'}}>
+      <h2>Signing you in...</h2>
     </div>
   );
 }
