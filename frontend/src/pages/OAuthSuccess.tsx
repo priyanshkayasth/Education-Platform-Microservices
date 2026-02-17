@@ -1,11 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
 export default function OAuthSuccess() {
   const navigate = useNavigate();
-  const {refetchUser}=useAuth()
+  const { refetchUser } = useAuth();
 
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get("token");
@@ -15,11 +14,12 @@ export default function OAuthSuccess() {
       return;
     }
 
+    // ✅ store token locally
+    localStorage.setItem("access_token", token);
+
     const completeLogin = async () => {
       try {
-        await api.post("/auth/oauth-login", { token });
-        await new Promise(resolve => setTimeout(resolve,100))
-        await refetchUser()
+        await refetchUser();   // this now sends Authorization header
         navigate("/", { replace: true });
       } catch (err) {
         console.error("OAuth login failed", err);
@@ -28,7 +28,7 @@ export default function OAuthSuccess() {
     };
 
     completeLogin();
-  }, [navigate]);
+  }, [navigate, refetchUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
