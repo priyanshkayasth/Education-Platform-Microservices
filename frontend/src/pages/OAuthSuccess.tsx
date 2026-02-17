@@ -4,8 +4,9 @@ import { useAuth } from "../context/AuthContext";
 
 export default function OAuthSuccess() {
   const navigate = useNavigate();
-  const { refetchUser } = useAuth();
+  const { user, loading, refetchUser } = useAuth();
 
+  // Step 1: read token & fetch user
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get("token");
 
@@ -14,23 +15,17 @@ export default function OAuthSuccess() {
       return;
     }
 
-    // ✅ store token locally
     localStorage.setItem("access_token", token);
 
-    const completeLogin = async () => {
-      try {
-        await refetchUser();   // this now sends Authorization header
-        setTimeout(() => {
-          navigate("/", { replace: true });
-        }, 0);
-      } catch (err) {
-        console.error("OAuth login failed", err);
-        navigate("/login");
-      }
-    };
-
-    completeLogin();
+    refetchUser();
   }, [navigate, refetchUser]);
+
+  // Step 2: when user becomes available → redirect
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/", { replace: true });
+    }
+  }, [loading, user, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
