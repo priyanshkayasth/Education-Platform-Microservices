@@ -20,7 +20,9 @@ export default function OAuthSuccess() {
     const completeLogin = async () => {
       try {
         await refetchUser();   // this now sends Authorization header
-        navigate("/", { replace: true });
+        setTimeout(() => {
+          navigate("/", { replace: true });
+        }, 0);
       } catch (err) {
         console.error("OAuth login failed", err);
         navigate("/login");
