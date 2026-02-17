@@ -127,6 +127,39 @@ export const login = async (req: Request, res: Response) => {
 //   }
 // };
 
+// export const googleCallback = async (req: Request, res: Response) => {
+//   try {
+//     const user = req.user as any;
+
+//     if (!user) {
+//       return res.status(401).json({ message: "Authentication failed" });
+//     }
+
+//     const token = jwt.sign(
+//       {
+//         id: user._id,
+//         email: user.email,
+//         role: user.role || "user",
+//       },
+//       process.env.JWT_SECRET!,
+//       { expiresIn: "15m" }
+//     );
+
+//     const FRONTEND_URL =
+//       process.env.FRONTEND_URL || "http://localhost:5173";
+
+//     // 👉 redirect with token (NO cookie here)
+//     return res.redirect(
+//       `${FRONTEND_URL}/oauth-success?token=${token}`
+//     );
+//   } catch (error) {
+//     console.error("Google callback error:", error);
+//     return res.status(500).json({
+//       message: "Internal server error",
+//     });
+//   }
+// };
+
 export const googleCallback = async (req: Request, res: Response) => {
   try {
     const user = req.user as any;
@@ -148,10 +181,17 @@ export const googleCallback = async (req: Request, res: Response) => {
     const FRONTEND_URL =
       process.env.FRONTEND_URL || "http://localhost:5173";
 
-    // 👉 redirect with token (NO cookie here)
-    return res.redirect(
-      `${FRONTEND_URL}/oauth-success?token=${token}`
-    );
+    // ✅ SET COOKIE DIRECTLY HERE
+    res.cookie("access_token", token, {
+      httpOnly: true,
+      secure: true,        // required for HTTPS (Render)
+      sameSite: "none",    // required for cross-site
+      path: "/",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    // ✅ redirect to frontend HOME (no token in URL)
+    return res.redirect(`${FRONTEND_URL}/`);
   } catch (error) {
     console.error("Google callback error:", error);
     return res.status(500).json({
