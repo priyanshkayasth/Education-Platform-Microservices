@@ -150,8 +150,9 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     // 👉 redirect with token (NO cookie here)
     return res.redirect(
-      `${FRONTEND_URL}/oauth-success?token=${token}`
-    );
+  `${FRONTEND_URL}/oauth-success?token=${encodeURIComponent(token)}`
+);
+
   } catch (error) {
     console.error("Google callback error:", error);
     return res.status(500).json({
