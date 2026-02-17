@@ -45,14 +45,8 @@ function App() {
             </PublicRoute>
           }
         />
-        <Route
-          path="/oauth-success"
-          element={
-            <PublicRoute>
-              <OAuthSuccess />
-            </PublicRoute>
-          }
-        />
+       <Route path="/oauth-success" element={<OAuthSuccess />} />
+
 
         {/* PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
