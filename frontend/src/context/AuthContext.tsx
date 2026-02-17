@@ -88,6 +88,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const navigate=useNavigate()
 
+  
 
   const fetchUser = async () => {
     setLoading(true);
@@ -112,6 +113,8 @@ const logout = async () => {
   } catch {
     // ignore
   } finally {
+    localStorage.removeItem("access_token");
+
     setUser(null)
     setIsLoggingOut(false)
     navigate("/login", { replace: true });
