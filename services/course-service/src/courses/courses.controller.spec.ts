@@ -22,6 +22,7 @@
 
 //
 
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { CoursesController } from './courses.controller';
 import { CoursesService } from './courses.service';
@@ -67,11 +68,15 @@ describe('CoursesController (unit)', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-
     it('calls service.create with correct params', async () => {
       service.create.mockResolvedValue({ title: 'NestJS' } as any);
 
-      const req = { headers: { 'x-user-id': 'instructor123' } };
+      const req = {
+        headers: {
+          'x-user-id': 'instructor123',
+          'x-user-role': 'INSTRUCTOR',
+        },
+      };
 
       const result = await controller.create(
         { title: 'NestJS' } as any,
@@ -82,8 +87,48 @@ describe('CoursesController (unit)', () => {
         { title: 'NestJS' },
         'instructor123',
       );
+
       expect(result!.title).toBe('NestJS');
     });
+
+    it('should throw ForbiddenException for non-instructor', async () => {
+      const req = {
+        headers: {
+          'x-user-id': 'student123',
+          'x-user-role': 'STUDENT', // 
+        },
+      };
+
+      await expect(
+        controller.create({ title: 'NestJS' } as any, req),
+      ).rejects.toThrow('Only instructors or admins can create courses');
+    });
+
+    it('should allow ADMIN to create course', async () => {
+      service.create.mockResolvedValue({ title: 'Admin Course' } as any);
+
+      const req = {
+        headers: {
+          'x-user-id': 'admin123',
+          'x-user-role': 'ADMIN',
+        },
+      };
+
+      const result = await controller.create(
+        { title: 'Admin Course' } as any,
+        req as any,
+      );
+
+      expect(service.create).toHaveBeenCalledWith(
+        { title: 'Admin Course' },
+        'admin123',
+      );
+
+      expect(result.title).toBe('Admin Course');
+    });
+
+
+
   });
 
   // ========================
@@ -152,6 +197,27 @@ describe('CoursesController (unit)', () => {
     expect(result.title).toBe('Updated');
   });
 
+  it('update should pass undefined instructorId when header missing', async () => {
+    service.update.mockResolvedValue({ title: 'Updated' } as any);
+
+    const req = { headers: {} }; // no x-user-id
+
+    const result = await controller.update(
+      '123',
+      { title: 'Updated' } as any,
+      req as any,
+    );
+
+    expect(service.update).toHaveBeenCalledWith(
+      '123',
+      { title: 'Updated' },
+      undefined, //  important
+    );
+
+    expect(result.title).toBe('Updated');
+  });
+
+
   // ========================
   // REMOVE
   // ========================
@@ -168,5 +234,59 @@ describe('CoursesController (unit)', () => {
     expect(result).toBeDefined();
     expect(result!._id).toBe('123');
   });
+
+  it('remove should pass undefined instructorId when header missing', async () => {
+    service.remove.mockResolvedValue({ _id: '123' } as any);
+
+    const req = { headers: {} }; // no x-user-id
+
+    const result = await controller.remove('123', req as any);
+
+    expect(service.remove).toHaveBeenCalledWith('123', undefined);
+    expect(result._id).toBe('123');
+  });
+
+  //findOne
+
+  it('should return a course by id', async () => {
+    const course = { _id: 'courseId', title: 'NestJS Course' };
+
+    jest.spyOn(service, 'findOne').mockResolvedValue(course as any);
+
+    const result = await controller.findOne('courseId');
+
+    expect(service.findOne).toHaveBeenCalledWith('courseId');
+    expect(result).toEqual(course);
+  });
+
+
+
+
+
+  // /findOne → error case
+
+  it('should throw when course not found', async () => {
+    service.findOne.mockRejectedValue(new BadRequestException());
+
+    await expect(controller.findOne('bad-id')).rejects.toThrow();
+  });
+
+
+  // 4. getRecentCourses endpoint test
+
+  // it('should return recent courses from controller', async () => {
+  //   service.getRecentCourses.mockResolvedValue([
+  //     { title: 'Recent Course' },
+  //   ] as any);
+
+  //   const result = await controller.getRecentCourses(3);
+
+  //   expect(service.getRecentCourses).toHaveBeenCalledWith(3);
+  //   expect(result[0].title).toBe('Recent Course');
+  // });
+
+
+
+
 
 });

@@ -16,7 +16,7 @@ import { UpdateAssignmentProgressDto } from "./dto/assignment-progress.dto";
 export class EnrollmentController {
   constructor(
     private readonly enrollmentService: EnrollmentService,
-  ) {}
+  ) { }
 
   // Enroll
   @Post()

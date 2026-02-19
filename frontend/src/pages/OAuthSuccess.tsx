@@ -14,13 +14,13 @@ export default function OAuthSuccess() {
       return;
     }
 
-    // ✅ store token
+    // store token
     localStorage.setItem("access_token", token);
 
-    // 🔥 remove token from URL for safety
+    //  remove token from URL for safety
     window.history.replaceState({}, document.title, "/");
 
-    // 🔥 redirect to home (fresh reload so axios picks token)
+    //  redirect to home (fresh reload so axios picks token)
     window.location.href = "/";
   }, []);
 

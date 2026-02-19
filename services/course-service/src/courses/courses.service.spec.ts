@@ -94,7 +94,7 @@ describe('CoursesService', () => {
   // ========================
   describe('findAll', () => {
     it('should return only published courses', async () => {
-      courseModel.find.mockResolvedValue([{ title: 'Published Course' }]);
+      courseModel.find.mockResolvedValue([{   title: 'Published Course' }]);
 
       const result = await service.findAll();
 
@@ -146,29 +146,32 @@ describe('CoursesService', () => {
       ).rejects.toThrow(ForbiddenException);
     });
 
-    // it('should update course if instructor is owner', async () => {
-    //   courseModel.findById.mockResolvedValue({
-    //     instructorId: 'owner',
-    //   });
+    it('should update course if instructor is owner', async () => {
+      courseModel.findById.mockResolvedValue({
+        instructorId: 'owner',
+      });
 
-    //   courseModel.findByIdAndUpdate.mockResolvedValue({
-    //     title: 'Updated Course',
-    //   });
+      courseModel.findByIdAndUpdate.mockResolvedValue({
+        title: 'Updated Course',
+      });
 
-    //   const result = await service.update(
-    //     'id',
-    //     { title: 'Updated Course' } as any,
-    //     'owner',
-    //   );
+      const result = await service.update(
+        'id',
+        { title: 'Updated Course' } as any,
+        'owner',
+      );
 
-    //   expect(courseModel.findByIdAndUpdate).toHaveBeenCalledWith(
-    //     'id',
-    //     { title: 'Updated Course' },
-    //     { new: true },
-    //   );
+      expect(courseModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        'id',
+        { title: 'Updated Course' },
+        { new: true },
+      );
 
-    //   expect(result.title).toBe('Updated Course');
-    // });
+      expect(result.title).toBe('Updated Course');
+    });
+
+
+
   });
 
   // ========================
@@ -193,18 +196,26 @@ describe('CoursesService', () => {
       ).rejects.toThrow(ForbiddenException);
     });
 
-    // it('should delete course if instructor is owner', async () => {
-    //   courseModel.findById.mockResolvedValue({
-    //     instructorId: 'owner',
-    //   });
+    it('should delete course if instructor is owner', async () => {
+      const deletedCourse = {
+        _id: 'id',
+        title: 'Deleted Course',
+        instructorId: 'owner',
+      };
 
-    //   courseModel.findByIdAndDelete.mockResolvedValue({ deleted: true });
+      courseModel.findById.mockResolvedValue({
+        instructorId: 'owner',
+      });
 
-    //   const result = await service.remove('id', 'owner');
+      courseModel.findByIdAndDelete.mockResolvedValue(deletedCourse);
 
-    //   expect(courseModel.findByIdAndDelete).toHaveBeenCalledWith('id');
-    //   expect(result.deleted).toBe(true);
-    // });
+      const result = await service.remove('id', 'owner');
+
+      expect(courseModel.findByIdAndDelete).toHaveBeenCalledWith('id');
+      expect(result).toEqual(deletedCourse);
+    });
+
+
   });
 
   // ========================
@@ -260,4 +271,23 @@ describe('CoursesService', () => {
       expect(result[0].title).toBe('Recent Course');
     });
   });
+
+  it('should use default limit (5) when no limit is provided', async () => {
+    const query = {
+      sort: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      select: jest.fn().mockResolvedValue([
+        { title: 'Recent Course' },
+      ]),
+    };
+
+    courseModel.find.mockReturnValue(query);
+
+    const result = await service.getRecentCourses(); // no argument
+
+    expect(query.sort).toHaveBeenCalledWith({ createdAt: -1 });
+    expect(query.limit).toHaveBeenCalledWith(5); // default value
+    expect(result[0].title).toBe('Recent Course');
+  });
+
 });

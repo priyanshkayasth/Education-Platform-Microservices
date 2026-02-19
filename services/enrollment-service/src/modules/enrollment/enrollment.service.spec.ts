@@ -100,6 +100,20 @@ describe('EnrollmentService (unit)', () => {
     });
   });
 
+ it('should rethrow error if DB operation fails with unknown error', async () => {
+  const error = new Error('DB failure');
+
+  enrollmentModel.create.mockRejectedValue(error);
+
+  await expect(
+    service.enrollStudent({ studentId: 's1', courseId: 'c1' } as any),
+  ).rejects.toThrow('DB failure');
+});
+
+
+
+
+
   // ========================
   // GET ENROLLMENTS BY STUDENT
   // ========================
@@ -129,7 +143,7 @@ describe('EnrollmentService (unit)', () => {
       duration: 100,
       totalLessons: 5,
     };
-
+    
     it('should throw if enrollment not found', async () => {
       enrollmentModel.findOne.mockResolvedValue(null);
 
@@ -175,6 +189,31 @@ describe('EnrollmentService (unit)', () => {
       expect(enrollment.lessonsProgress[0].watchedSeconds).toBe(50);
       expect(enrollment.save).toHaveBeenCalled();
     });
+
+    it('should default watchedSeconds to 0 when existing watchedSeconds is undefined', async () => {
+  const enrollment = {
+    lessonsProgress: [
+      {
+        lessonId: 'l1',
+        watchedSeconds: undefined,   // 
+        completed: false,
+      },
+    ] as any,
+    overallPercentage: 0,
+    save: jest.fn().mockResolvedValue(true),
+  };
+
+  enrollmentModel.findOne.mockResolvedValue(enrollment);
+
+  await service.updateVideoProgress('s1', dto as any);
+
+  expect(enrollment.lessonsProgress.length).toBe(1);
+
+  // since previous was undefined, it should behave like 0 + new watchedSeconds
+  expect(enrollment.lessonsProgress[0].watchedSeconds).toBe(50);
+
+  expect(enrollment.save).toHaveBeenCalled();
+});
   });
 
   // ========================
