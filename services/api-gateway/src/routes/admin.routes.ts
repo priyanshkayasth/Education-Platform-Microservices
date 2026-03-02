@@ -56,6 +56,8 @@ export class AdminRoutes {
 async getAdminDashboard(@Req() req) {
   const headers = {
     cookie: req.headers.cookie, 
+   'x-user-id': req.user?.userId,
+  'x-user-role': req.user?.role,
   };
 
   const [authRes, courseRes] = await Promise.all([

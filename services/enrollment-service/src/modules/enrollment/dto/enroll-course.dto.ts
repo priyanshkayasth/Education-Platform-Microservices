@@ -1,7 +1,11 @@
-import {  IsMongoId, IsNotEmpty, IsUUID } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 
-export class EnrollCourseDto{
+export class EnrollCourseDto {
     @IsMongoId()
     @IsNotEmpty()
-    courseId:string
+    courseId: string
+
+    @IsOptional()
+    @IsString()
+    referralCode?: string;
 }

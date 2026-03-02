@@ -74,11 +74,14 @@ export class ProxyService {
         res.setHeader("set-cookie", setCookie);
       }
 
-      res.status(response.status
+      // res.status(response.status
         
-      )
+      // )
 
-      return response.data;
+      // return response.data;
+      res.status(response.status).send(response.data);
+      return;
+
     } catch (error) {
       // 🔥 THIS IS THE MISSING PIECE
       if (axios.isAxiosError(error)) {

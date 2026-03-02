@@ -1,5 +1,6 @@
 import type { Request, Response } from "express"
 import { getUserByIdService } from "../services/user.service.js"
+import User from "../models/User.model.js";
 
 export const getUserById = async (req: Request, res: Response) => {
     try {
@@ -18,3 +19,51 @@ export const getUserById = async (req: Request, res: Response) => {
         })
     }
 }
+
+export const awardReferralPoints = async (req: Request, res: Response) => {
+  try {
+    const { referralCode, points = 10 } = req.body;
+
+    const user = await User.findOneAndUpdate(
+      { referralCode },
+      { $inc: { points } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User with referral code not found' });
+    }
+
+    return res.json({
+      message: 'Points awarded successfully',
+      userId: user._id,
+      points: user.points
+    });
+  } catch (err) {
+    return res.status(500).json({ message: 'Failed to award points' });
+  }
+}
+
+
+export const deductPoints = async (req: Request, res: Response) => {
+  try {
+    const { studentId, points } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      studentId,
+      { $inc: { points: -points } }, // ← negative to deduct
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.json({
+      message: 'Points deducted successfully',
+      points: user.points
+    });
+  } catch (err) {
+    return res.status(500).json({ message: 'Failed to deduct points' });
+  }
+};

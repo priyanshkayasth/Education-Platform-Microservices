@@ -4,11 +4,12 @@ import { courseService } from "../services/course.service";
 import { EnrollmentService } from "../services/enrollment.service";
 import { notificationService } from "../services/notification.service";
 import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Footer } from "../components/common/Footer";
+import { useRazorpay } from "../hooks/useRazorpay";
 
 /* =====================
-   Types
+  Types
 ===================== */
 
 type Lesson = {
@@ -43,18 +44,20 @@ type Course = {
   description: string;
   lessons: Lesson[];
   isEnrolled: boolean;
+  price: number;
+  isFree: boolean;
   progress?: CourseProgress;
 };
 
 /* =====================
-   Helpers
+  Helpers
 ===================== */
 
 const getYoutubeThumbnail = (videoId?: string) =>
   videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
 
 /* =====================
-   Component
+  Component
 ===================== */
 
 export default function StudentDashboard() {
@@ -71,12 +74,64 @@ export default function StudentDashboard() {
   const displayedCourses = activeTab === "enrolled" ? enrolledCourses : availableCourses;
 
   /* =====================
-     Enroll
+    Enroll
   ===================== */
+
+  // const handleEnroll = async (courseId: string) => {
+  //   try {
+  //     await EnrollmentService.doEnrollment(courseId);
+
+  //     setCourses((prev) =>
+  //       prev.map((course) =>
+  //         course.id === courseId
+  //           ? { ...course, isEnrolled: true }
+  //           : course
+  //       )
+  //     );
+
+  //     notificationService.success("Enrolled successfully");
+  //   } catch (error: any) {
+  //     if (error.response?.status === 409) {
+  //       notificationService.info("You are already enrolled");
+  //     } else {
+  //       notificationService.error("Enrollment failed");
+  //     }
+  //   }
+  // };
+
+
+  // Inside component
+  const [searchParams] = useSearchParams();
+  const refCode = searchParams.get('ref');
+  const refCourseId = searchParams.get('courseId');
+
+  const { initiatePayment } = useRazorpay();
+  const [pointsToUse, setPointsToUse] = useState(0);
+
+  // Auto switch to browse tab if referral link
+  useEffect(() => {
+    if (refCourseId) {
+      setActiveTab('browse');
+    }
+  }, [refCourseId]);
+
+  // Add this helper function inside the component
+  const getReferralLink = (courseId: string) => {
+    // return `${window.location.origin}/courses?ref=${user?.referralCode}&courseId=${courseId}`;
+    return `${window.location.origin}/student?ref=${user?.referralCode}&courseId=${courseId}`;
+
+  };
+
+  const handleCopyReferral = (courseId: string) => {
+    const link = getReferralLink(courseId);
+    navigator.clipboard.writeText(link);
+    notificationService.success("Referral link copied!");
+  };
 
   const handleEnroll = async (courseId: string) => {
     try {
-      await EnrollmentService.doEnrollment(courseId);
+      const referralCode = refCode || undefined;
+      await EnrollmentService.doEnrollment(courseId, referralCode);
 
       setCourses((prev) =>
         prev.map((course) =>
@@ -95,9 +150,8 @@ export default function StudentDashboard() {
       }
     }
   };
-
   /* =====================
-     Load Data
+    Load Data
   ===================== */
 
   useEffect(() => {
@@ -124,6 +178,8 @@ export default function StudentDashboard() {
                 ? course.lessons
                 : [],
               isEnrolled: !!enrollment,
+              price: course.price ?? 0,       // 
+              isFree: course.isFree ?? true,  // 
               progress: enrollment
                 ? {
                   overallPercentage:
@@ -148,14 +204,14 @@ export default function StudentDashboard() {
   }, [user, isLoggingOut]);
 
   /* =====================
-     Render States
+    Render States
   ===================== */
 
   if (loading) return <div className="p-6">Loading courses...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   /* =====================
-     Render UI
+    Render UI
   ===================== */
 
   return (
@@ -206,8 +262,10 @@ export default function StudentDashboard() {
               >
                 Browse Courses
               </button>
+
             )}
           </div>
+
         )}
 
         {/* Course Grid */}
@@ -404,7 +462,24 @@ export default function StudentDashboard() {
                   )}
                 </div>
 
-                {!course.isEnrolled ? (
+                {/* {!course.isEnrolled ? (
+                    <button
+                      className="btn btn-primary btn-sm m-4"
+                      onClick={() => handleEnroll(course.id)}
+                    >
+                      Enroll to Unlock
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-success btn-sm m-4"
+                      disabled
+                    >
+                      Enrolled
+                    </button>
+                  )} */}
+
+                {/* Enroll / Enrolled Button */}
+                {/* {!course.isEnrolled ? (
                   <button
                     className="btn btn-primary btn-sm m-4"
                     onClick={() => handleEnroll(course.id)}
@@ -417,6 +492,86 @@ export default function StudentDashboard() {
                     disabled
                   >
                     Enrolled
+                  </button>
+                )} */}
+
+
+
+                {!course.isEnrolled ? (
+                  <div className="m-4">
+                    {course.isFree ? (
+                      // FREE COURSE
+                      <button
+                        className="btn btn-primary btn-sm w-full"
+                        onClick={() => handleEnroll(course.id)}
+                      >
+                        Enroll for Free
+                      </button>
+                    ) : (
+                      // PAID COURSE
+                      <div>
+                        <div className="text-lg font-bold mb-2">
+                          ₹{course.price}
+                          {user?.points && user.points >= 100 && (
+                            <span className="text-sm text-success ml-2">
+                              You have {user.points} points!
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Points discount */}
+                        {user?.points && user.points >= 100 && (
+                          <div className="mb-2">
+                            <label className="text-sm">Use points for discount:</label>
+                            <input
+                              type="number"
+                              className="input input-bordered input-sm w-full mt-1"
+                              min={0}
+                              max={user.points}
+                              step={100}
+                              value={pointsToUse}
+                              onChange={(e) => setPointsToUse(Number(e.target.value))}
+                            />
+                            {pointsToUse >= 100 && (
+                              <p className="text-xs text-success mt-1">
+                                Discount: ₹{Math.round((course.price * Math.min(50, Math.floor(pointsToUse / 100) * 10)) / 100)}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        <button
+                          className="btn btn-primary btn-sm w-full"
+                          onClick={() => initiatePayment(
+                            course.id,
+                            course.price,
+                            pointsToUse,
+                            () => {
+                              setCourses(prev =>
+                                prev.map(c => c.id === course.id ? { ...c, isEnrolled: true } : c)
+                              );
+                              notificationService.success('Payment successful! Enrolled in course.');
+                            }
+                          )}
+                        >
+                          Buy ₹{course.price}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <button className="btn btn-success btn-sm m-4" disabled>
+                    Enrolled
+                  </button>
+                )}
+
+                {/* 🔗 Referral Share Button */}
+                {course.isEnrolled && user?.referralCode && (
+                  <button
+                    className="btn btn-outline btn-sm mx-4 mb-4"
+                    onClick={() => handleCopyReferral(course.id)}
+                  >
+                    🔗 Share & Earn Points
                   </button>
                 )}
               </div>

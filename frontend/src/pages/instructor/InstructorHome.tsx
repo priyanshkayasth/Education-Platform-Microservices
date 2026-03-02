@@ -55,7 +55,8 @@ export default function InstructorHome() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <span className="loading loading-spinner loading-lg"></span>
+        <span  role="status"
+  aria-label="Loading courses" className="loading loading-spinner loading-lg"></span>
       </div>
     );
   }

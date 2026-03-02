@@ -20,6 +20,8 @@ export default function ProtectedRoute() {
   if (loading) return <div>Loading...</div>;
 
   if (!user) {
+      sessionStorage.setItem('redirectAfterLogin', location.pathname + location.search);
+
     return <Navigate to="/login" replace />;
   }
 

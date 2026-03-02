@@ -16,4 +16,7 @@ export class ServicesConfig {
   get enrollmentService(): string {
     return this.config.getOrThrow<string>('ENROLLMENT_SERVICE_URL');
   }
+  get paymentService(): string {
+  return this.config.getOrThrow<string>('PAYMENT_SERVICE_URL');
+}
 }

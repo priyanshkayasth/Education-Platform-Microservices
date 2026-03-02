@@ -24,11 +24,25 @@ export default function Login() {
   const navigate = useNavigate();
 
   //  Redirect if already logged in
-  useEffect(() => {
-    if (!authLoading && user) {
-      navigate("/", { replace: true });
-    }
-  }, [user, authLoading, navigate]);
+  // useEffect(() => {
+  //   if (!authLoading && user) {
+  //     navigate("/", { replace: true });
+  //   }
+  // }, [user, authLoading, navigate]);
+
+
+
+// Update the redirect after already logged in
+useEffect(() => {
+  if (!authLoading && user) {
+    const redirectTo = sessionStorage.getItem('redirectAfterLogin') || '/';
+    sessionStorage.removeItem('redirectAfterLogin');
+    navigate(redirectTo, { replace: true });
+  }
+}, [user, authLoading, navigate]);
+
+// Update handleSubmit after successful login
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({

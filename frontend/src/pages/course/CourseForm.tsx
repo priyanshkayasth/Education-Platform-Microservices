@@ -208,6 +208,9 @@ export default function CourseForm({
     try {
       await onSubmit(form);
       toast.success("Course saved successfully");
+    }
+      catch (err) {
+  toast.error("Failed to save course");
     } finally {
       setLoading(false);
     }
@@ -341,7 +344,7 @@ export default function CourseForm({
                   onChange={(e) =>
                     updateLesson(index, {
                       assignment: {
-                        instructions: e.target.value, // ✅ ALWAYS string
+                        instructions: e.target.value, //  ALWAYS string
                         maxScore: lesson.assignment?.maxScore ?? 100,
                       },
                     })
@@ -357,7 +360,7 @@ export default function CourseForm({
                     updateLesson(index, {
                       assignment: {
                         instructions:
-                          lesson.assignment?.instructions ?? "", // ✅ ALWAYS string
+                          lesson.assignment?.instructions ?? "", //  ALWAYS string
                         maxScore: Number(e.target.value),
                       },
                     })

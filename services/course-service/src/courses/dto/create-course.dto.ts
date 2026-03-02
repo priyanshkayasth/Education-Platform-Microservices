@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsString, IsArray, IsOptional, ValidateNested } from 'class-validator';
+import { IsString, IsArray, IsOptional, ValidateNested, IsNumber, Min, IsBoolean } from 'class-validator';
 import { LessonDto } from './lesson.dto';
 import { Prop } from '@nestjs/mongoose';
 
@@ -22,11 +22,19 @@ export class CreateCourseDto {
   // assignments?: string[];
 
 
-  @Prop({ type: String, default: null })
-  summary?: string;
 
-   @IsArray()
+
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => LessonDto)
   lessons: LessonDto[];
+
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  price?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isFree?: boolean;
 }

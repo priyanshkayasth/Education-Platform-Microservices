@@ -28,6 +28,7 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+export type LessonDocument = Lesson & Document;
 
 export enum LessonType {
   VIDEO = 'video',
@@ -70,16 +71,23 @@ export class Lesson {
     type: {
       instructions: String,
       maxScore: Number,
+      aiNotes: { type: Object, default: null },        // 
+      aiGeneratedAt: { type: String, default: null },
     },
     required: false,
   })
   assignment?: {
     instructions: string;
     maxScore?: number;
+    aiNotes?: any;
+    aiGeneratedAt?: string;
   };
 
   @Prop({ default: 0 })
   order: number;
+
+  @Prop({ type: String, default: null })
+  summary?: string;
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);
@@ -94,14 +102,20 @@ export class Course extends Document {
 
   @Prop({ type: [LessonSchema], default: [] })
   // lessons: Lesson[];
-
-  lessons: Types.DocumentArray<Lesson>;
+  lessons: Types.DocumentArray<LessonDocument>;
+  // lessons: Types.DocumentArray<Lesson>;
 
   @Prop({ required: true })
   instructorId: string;
 
   @Prop({ default: false })
   isPublished: boolean;
+
+  @Prop({ default: 0 })
+price: number;
+
+@Prop({ default: true })
+isFree: boolean;
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

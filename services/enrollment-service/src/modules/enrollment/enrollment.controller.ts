@@ -32,6 +32,7 @@ export class EnrollmentController {
     return this.enrollmentService.enrollStudent({
       studentId,
       courseId: dto.courseId,
+      referralCode: dto.referralCode, 
     });
   }
 
@@ -82,4 +83,13 @@ export class EnrollmentController {
       dto,
     );
   }
+
+  @Post('enroll-after-payment')
+enrollAfterPayment(@Body() body: { studentId: string; courseId: string; pointsUsed: number }) {
+  return this.enrollmentService.enrollAfterPayment({
+    studentId: body.studentId,
+    courseId: body.courseId,
+    pointsUsed: body.pointsUsed,
+  });
+}
 }

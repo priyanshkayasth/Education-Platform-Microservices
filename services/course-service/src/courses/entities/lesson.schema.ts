@@ -38,11 +38,15 @@ export class Lesson {
     type: {
       instructions: String,
       maxScore: Number,
+      aiNotes: { type: Object, default: null },       // 
+    aiGeneratedAt: { type: String, default: null },  // 
     },
   })
   assignment?: {
     instructions: string;
     maxScore?: number;
+     aiNotes?: any;
+  aiGeneratedAt?: string;
   };
 
   // ✅ REQUIRED for your error

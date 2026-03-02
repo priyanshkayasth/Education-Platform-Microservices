@@ -6,3 +6,7 @@ dist
 .vscode
 .idea
 .DS_Store
+
+bin/yt-dlp
+bin/yt-dlp.exe
+tmp/

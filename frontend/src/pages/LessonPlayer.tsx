@@ -5,7 +5,9 @@ import Navbar from "../components/common/NavBar";
 import { courseService } from "../services/course.service";
 import { EnrollmentService } from "../services/enrollment.service";
 
+
 type Lesson = {
+
   _id: string;
   title: string;
   type: "video" | "assignment";
@@ -17,6 +19,14 @@ type Lesson = {
   assignment?: {
     instructions: string;
     maxScore?: number;
+    aiNotes?: {
+      topicOverview: string;
+      keyConcepts: string[];
+      stepsToSolve: string[];
+      examples: string[];
+      tips: string[];
+      commonMistakes: string[];
+    }
   };
 };
 
@@ -187,7 +197,8 @@ export default function LessonPlayer() {
             )}
 
             {/* Assignment Display */}
-            {lesson.type === "assignment" && lesson.assignment && (
+
+            {/* {lesson.type === "assignment" && lesson.assignment && (
               <div className="bg-base-200 p-6 rounded-lg">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-2xl">📝</span>
@@ -224,7 +235,103 @@ export default function LessonPlayer() {
                   Mark as Complete ✓
                 </button>
               </div>
+            )} */}
+
+            {lesson.type === "assignment" && lesson.assignment && (
+              <div className="bg-base-200 p-6 rounded-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-2xl">📝</span>
+                  <h3 className="text-lg font-semibold">Assignment</h3>
+                </div>
+
+                <div className="bg-base-100 p-4 rounded mb-4">
+                  <h4 className="font-medium mb-2">Instructions:</h4>
+                  <p className="whitespace-pre-wrap">{lesson.assignment.instructions}</p>
+                </div>
+
+                {lesson.assignment.maxScore && (
+                  <div className="text-sm text-base-content/70 mb-4">
+                    Maximum Score: {lesson.assignment.maxScore} points
+                  </div>
+                )}
+
+                {/* AI Notes Section */}
+                {(lesson.assignment as any).aiNotes && (
+                  <div className="mt-6 bg-base-100 p-4 rounded-lg border border-primary/20">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-2xl">🤖</span>
+                      <h3 className="text-lg font-semibold">AI Study Notes</h3>
+                    </div>
+
+                    <p className="text-sm text-base-content/80 mb-4">
+                      {(lesson.assignment as any).aiNotes.topicOverview}
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-medium mb-2">🔑 Key Concepts</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm">
+                          {(lesson.assignment as any).aiNotes.keyConcepts?.map((item: string, i: number) => (
+                            <li key={i}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium mb-2">🪜 Steps to Solve</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm">
+                          {(lesson.assignment as any).aiNotes.stepsToSolve?.map((item: string, i: number) => (
+                            <li key={i}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium mb-2">💡 Tips</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm">
+                          {(lesson.assignment as any).aiNotes.tips?.map((item: string, i: number) => (
+                            <li key={i}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium mb-2">⚠️ Common Mistakes</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm">
+                          {(lesson.assignment as any).aiNotes.commonMistakes?.map((item: string, i: number) => (
+                            <li key={i}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  className="btn btn-success"
+                  onClick={async () => {
+                    try {
+                      await EnrollmentService.updateAssignmentProgress({
+                        courseId: courseId!,
+                        lessonId: lessonId!,
+                        score: lesson.assignment?.maxScore ?? 100,
+                        totalLessons: allLessons.length,
+                      });
+                      alert("Assignment marked as complete!");
+                    } catch (error) {
+                      alert("Failed to mark assignment as complete");
+                    }
+                  }}
+                >
+                  Mark as Complete ✓
+                </button>
+
+              </div>
             )}
+
+
+
+
 
             {/* Navigation Buttons */}
             <div className="flex justify-between mt-4">

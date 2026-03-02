@@ -34,6 +34,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = app.get(ConfigService);
+  console.log('RABBITMQ_URL:', config.get('RABBITMQ_URL')); // ← add this
+
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,

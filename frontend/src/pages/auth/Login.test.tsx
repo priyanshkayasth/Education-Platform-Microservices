@@ -20,15 +20,29 @@ vi.mock("../../services/auth.service", () => ({
 }));
 
 //  mock auth context
+let mockUser: any = null;
+let mockLoading = false;
 const mockRefetchUser = vi.fn();
 
 vi.mock("../../context/AuthContext", () => ({
   useAuth: () => ({
     refetchUser: mockRefetchUser,
+    user: mockUser,
+    loading: mockLoading,
   }),
 }));
 
-//    import mocked service
+//  mock navigate
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual<any>("react-router-dom");
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+// imports AFTER mocks
 import { authService } from "../../services/auth.service";
 import toast from "react-hot-toast";
 
@@ -41,11 +55,13 @@ const renderLogin = () =>
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockUser = null;
+  mockLoading = false;
 });
 
 describe("Login Page", () => {
   it("logs in successfully with valid credentials", async () => {
-    (authService.login as any).mockResolvedValueOnce({});
+    (authService.login as any).mockResolvedValueOnce({ user: { id: 1 } });
 
     renderLogin();
 
@@ -60,7 +76,7 @@ describe("Login Page", () => {
     );
 
     await userEvent.click(
-      screen.getByRole("button", { name: /login/i })
+      screen.getByRole("button", { name: /^login$/i })
     );
 
     expect(authService.login).toHaveBeenCalledWith({
@@ -76,13 +92,10 @@ describe("Login Page", () => {
     renderLogin();
 
     await userEvent.click(
-      screen.getByRole("button", { name: /login/i })
+      screen.getByRole("button", { name: /^login$/i })
     );
 
-    expect(toast.error).toHaveBeenCalledWith(
-      "All fields are required"
-    );
-
+    expect(toast.error).toHaveBeenCalledWith("All fields are required");
     expect(authService.login).not.toHaveBeenCalled();
   });
 
@@ -93,7 +106,6 @@ describe("Login Page", () => {
           message: "Invalid email or password",
         },
       },
-      isAxiosError: true,
     });
 
     renderLogin();
@@ -109,7 +121,7 @@ describe("Login Page", () => {
     );
 
     await userEvent.click(
-      screen.getByRole("button", { name: /login/i })
+      screen.getByRole("button", { name: /^login$/i })
     );
 
     expect(toast.error).toHaveBeenCalledWith(
@@ -119,7 +131,7 @@ describe("Login Page", () => {
 
   it("disables button while loading", async () => {
     (authService.login as any).mockImplementation(
-      () => new Promise(() => {})
+      () => new Promise(() => { })
     );
 
     renderLogin();
@@ -134,9 +146,110 @@ describe("Login Page", () => {
       "password"
     );
 
-    const button = screen.getByRole("button", { name: /login/i });
+    const button = screen.getByRole("button", { name: /^login$/i });
+
     await userEvent.click(button);
 
     expect(button).toBeDisabled();
   });
+
+  // ===========================
+  // NEW TESTS FOR COVERAGE
+  // ===========================
+
+  it("redirects to home if already logged in", () => {
+    mockUser = { id: 1 };
+    mockLoading = false;
+
+    renderLogin();
+
+    expect(mockNavigate).toHaveBeenCalledWith("/", { replace: true });
+  });
+
+  it("shows error when API returns no user", async () => {
+    (authService.login as any).mockResolvedValueOnce({
+      message: "Invalid email or password",
+      user: null,
+    });
+
+    renderLogin();
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/john@example.com/i),
+      "test@test.com"
+    );
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/••••••••/i),
+      "password123"
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: /^login$/i })
+    );
+
+    expect(toast.error).toHaveBeenCalledWith(
+      "Invalid email or password"
+    );
+  });
+  it("redirects to Google login when button clicked", async () => {
+    const originalLocation = window.location;
+
+    // create a mock location object
+    const locationMock = {
+      ...originalLocation,
+      href: "",
+    };
+
+    // override window.location safely
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: locationMock,
+    });
+
+    renderLogin();
+
+    const googleBtn = screen.getByRole("button", {
+      name: /login with google/i,
+    });
+
+    await userEvent.click(googleBtn);
+
+    expect(window.location.href).toContain("/auth/google");
+
+    // restore original
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: originalLocation,
+    });
+  });
+
+  it("shows fallback error message when API error has no message", async () => {
+    (authService.login as any).mockRejectedValueOnce({
+      response: {
+        data: {}, // 
+      },
+    });
+
+    renderLogin();
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/john@example.com/i),
+      "test@test.com"
+    );
+
+    await userEvent.type(
+      screen.getByPlaceholderText(/••••••••/i),
+      "password123"
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: /^login$/i })
+    );
+
+    expect(toast.error).toHaveBeenCalledWith(
+      "Invalid email or password"
+    );
+  });
+
 });

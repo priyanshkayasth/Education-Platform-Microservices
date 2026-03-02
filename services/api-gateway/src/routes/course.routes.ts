@@ -56,6 +56,7 @@ import {
   Patch,
   Post,
   Res,
+  Body,
 } from "@nestjs/common";
 import type { Response } from "express";
 import { JwtAuthGuard } from "src/auth/jwt.guard";
@@ -70,9 +71,9 @@ import { ProxyService } from "src/proxy/proxy.service";
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CourseRoutes {
   constructor(private readonly proxy: ProxyService,
-     readonly servicesConfig: ServicesConfig,
+    readonly servicesConfig: ServicesConfig,
 
-  ) {}
+  ) { }
 
   @Get()
   @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
@@ -80,7 +81,7 @@ export class CourseRoutes {
     return this.proxy.forward(this.servicesConfig.courseService, req, res);
   }
 
-    // 🔥 ADD THIS (VERY IMPORTANT)
+  // 🔥 ADD THIS (VERY IMPORTANT)
   @Get("instructor")
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   getInstructorCourses(
@@ -110,8 +111,24 @@ export class CourseRoutes {
   }
 
   @Delete(":id")
-  @Roles(Role.ADMIN,Role.INSTRUCTOR)
+  @Roles(Role.ADMIN, Role.INSTRUCTOR)
   delete(@Req() req, @Res({ passthrough: true }) res: Response) {
+    return this.proxy.forward(this.servicesConfig.courseService, req, res);
+  }
+
+  @Post(":courseId/lessons/:lessonId/summarize")
+  @Roles(Role.INSTRUCTOR, Role.ADMIN)
+  summarizeLesson(
+    @Req() req,
+    @Res({ passthrough: true }) res: Response,
+    @Body() body: any,  //  capture the parsed body
+  ) {
+      console.log('Gateway body received:', body);  //  check this first
+
+    req.headers['x-user-id'] = req.user.userId;
+    req.headers['x-user-role'] = req.user.role;
+    req.body = body;  //  re-attach it so the proxy can forward it
+
     return this.proxy.forward(this.servicesConfig.courseService, req, res);
   }
 }

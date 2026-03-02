@@ -8,13 +8,13 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-      "test": "vitest"
-
+    "test": "vitest"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.2",
     "lucide-react": "^0.563.0",
+    "razorpay": "^2.9.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",
@@ -33,6 +33,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/react-youtube": "^7.6.2",
     "@vitejs/plugin-react": "^5.1.1",
+    "@vitest/coverage-v8": "^4.0.18",
     "babel-jest": "^30.2.0",
     "daisyui": "^5.5.14",
     "eslint": "^9.39.1",

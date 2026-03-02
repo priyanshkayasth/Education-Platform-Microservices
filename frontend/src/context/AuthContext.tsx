@@ -70,6 +70,8 @@ type User = {
   id: string;
   name: String;
   role: "student" | "instructor" | "admin";
+  referralCode?: string;
+  points?:number;
 };
 
 type AuthContextType = {

@@ -1,8 +1,8 @@
 import api from "./axios";
 
 // Enroll
-export const enrollInCourse = (courseId: string) =>
-  api.post("/enrollments", { courseId });
+export const enrollInCourse = (courseId: string,referralCode?:string) =>
+  api.post("/enrollments", { courseId,...(referralCode && { referralCode }) });
 
 // Get my enrollments
 export const getMyEnrollments = () =>

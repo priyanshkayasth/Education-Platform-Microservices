@@ -6,8 +6,8 @@ import {
 } from "../api/enrollment.api";
 
 export const EnrollmentService = {
-  async doEnrollment(courseId: string) {
-    const res = await enrollInCourse(courseId);
+  async doEnrollment(courseId: string,referralCode?:string) {
+    const res = await enrollInCourse(courseId,referralCode);
     return res.data;
   },
 

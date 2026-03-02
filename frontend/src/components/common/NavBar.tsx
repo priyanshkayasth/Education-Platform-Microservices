@@ -91,15 +91,33 @@ export default function Navbar() {
         </div>
 
         {/* RIGHT */}
-        <div className="flex items-center gap-4">
+        {/* RIGHT */}
+        <div className="flex items-center gap-3">
 
           <ThemeToggle />
+
+          {/* ⭐ Points badge */}
+          {user?.points !== undefined && (
+            <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold">
+              ⭐ {user.points} pts
+            </div>
+          )}
+
+          {/* User name */}
+          {/* {user && (
+            <span className="text-sm font-medium text-gray-700">
+              {user.name}
+            </span>
+          )} */}
+
+          {/* Logout button */}
           <button
             onClick={handleLogout}
             className="btn btn-sm btn-outline btn-primary"
           >
             Logout
           </button>
+
         </div>
       </div>
     </nav>

@@ -8,6 +8,9 @@ async function bootstrap() {
     // app.setGlobalPrefix("api"); // 
   const configService = app.get(ConfigService);
 
+  console.log('MongoDB URL:', configService.get('MONGODB_URL')); // 
+
+
   app.useGlobalPipes(new ValidationPipe({whitelist:true}))
     const port = configService.getOrThrow<number>('PORT');
     await app.listen(port);

@@ -31,7 +31,7 @@ describe('JwtAuthGuard', () => {
       },
       cookies: {},
     };
-
+    
     (jwtService.verify as jest.Mock).mockReturnValue({
       id: 'user1',
       role: 'USER',

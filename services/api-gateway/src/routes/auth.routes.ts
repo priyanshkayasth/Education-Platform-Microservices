@@ -71,9 +71,9 @@ google(@Req() req, @Res() res) {
     req,
     res
   );
-}
+}   
 
-
+ 
 @Get('google/callback')
 googleCallback(@Req() req, @Res() res) {
   const query = new URLSearchParams(req.query as any).toString();

@@ -39,7 +39,7 @@ useEffect(() => {
     try {
       setUpdatingId(userId);
 
-      // 🔥 convert frontend role → backend role
+      //  convert frontend role → backend role
       await adminService.changeUserRole(
         userId,
         toBackendRole(role)
