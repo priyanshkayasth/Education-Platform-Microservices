@@ -13,7 +13,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         useFactory: (config: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
-            // urls: [config.getOrThrow<string>('RABBITMQ_URL')],
+            urls: [config.getOrThrow<string>('RABBITMQ_URL')],
             queue: 'notification_queue',
             queueOptions: {
               durable: true,
