@@ -110,6 +110,22 @@ export default function Navbar() {
             </span>
           )} */}
 
+          {/* Profile link */}
+          {user && (
+            <Link
+              to="/profile"
+              className="btn btn-sm btn-ghost"
+            >
+              <div className="avatar placeholder">
+                <div className="bg-primary text-primary-content rounded-full w-8 flex items-center justify-center">
+                  <span className="text-sm">{user?.name?.charAt(0).toUpperCase()}</span>
+                </div>
+              </div>
+            </Link>
+          )}
+
+
+
           {/* Logout button */}
           <button
             onClick={handleLogout}

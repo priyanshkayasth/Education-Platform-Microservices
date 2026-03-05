@@ -21,6 +21,7 @@ import AdminHome from "./pages/admin/AdminHome";
 import InstructorHome from "./pages/instructor/InstructorHome";
 import HomeRedirect from "./routes/HomeRedirect";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -52,6 +53,8 @@ function App() {
         <Route element={<ProtectedRoute />}>
 
           <Route path="/" element={<HomeRedirect />} />
+          {/* PROFILE - accessible by all roles */}
+  <Route path="/profile" element={<ProfilePage />} />  
 
 
           {/* STUDENT */}

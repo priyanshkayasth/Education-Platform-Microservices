@@ -2,6 +2,7 @@ import express from 'express'
 import { googleCallback, login, logout, me, oauthLogin, register } from '../controllers/auth.controller.js'
 import { authenticate } from '../middlewares/authenticate.js'
 import passport from '../config/passport.js'
+import { changePassword } from '../controllers/user.controller.js'
 
 
 const router=express.Router()
@@ -27,6 +28,9 @@ router.get(
   passport.authenticate('google', { session: false }),
   googleCallback
 );
+
+router.patch('/change-password', authenticate, changePassword)
+
 
 router.get('/me',authenticate,me)
 router.post('/logout',logout)

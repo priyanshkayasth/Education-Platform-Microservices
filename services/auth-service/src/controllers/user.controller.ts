@@ -67,3 +67,25 @@ export const deductPoints = async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Failed to deduct points' });
   }
 };
+
+import { changePasswordService } from '../services/user.service.js';
+
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current and new password are required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters' });
+    }
+
+    const result = await changePasswordService(userId, currentPassword, newPassword);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message || 'Failed to change password' });
+  }
+};

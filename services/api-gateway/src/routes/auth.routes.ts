@@ -5,6 +5,7 @@ import {
   Get,
   UseGuards,
   Res,
+  Patch,
 } from '@nestjs/common';
 import { ProxyService } from '../proxy/proxy.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
@@ -46,6 +47,15 @@ export class AuthRoutes {
       res,
     );
   }
+
+
+@Patch('change-password')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
+changePassword(@Req() req, @Res({ passthrough: true }) res) {
+  req.headers['x-user-id'] = req.user.userId;
+  return this.proxy.forward(this.servicesConfig.authService, req, res);
+}
 
 
 @Post('oauth-login')
