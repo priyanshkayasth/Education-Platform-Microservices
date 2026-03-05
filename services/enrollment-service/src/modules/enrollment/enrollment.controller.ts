@@ -31,12 +31,12 @@ export class EnrollmentController {
 
     return this.enrollmentService.enrollStudent({
       studentId,
-      courseId: dto.courseId,
+      courseId: dto.courseId,  
       referralCode: dto.referralCode, 
     });
   }
 
-  // Get my enrollments
+  // Get my enrollments 
   @Get("me")
   getMyEnrollments(@Req() req) {
     const studentId = req.headers["x-user-id"] as string;
