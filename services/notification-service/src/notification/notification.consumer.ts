@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { EmailService } from './email.service';
-console.log('🔥 NotificationConsumer file loaded');
+console.log('NotificationConsumer file loaded');
 
 @Controller()
 export class NotificationConsumer {

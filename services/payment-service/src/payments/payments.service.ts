@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Payment, PaymentStatus } from './entities/payment.entity';
@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import Razorpay from 'razorpay';
 import axios from 'axios';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class PaymentsService {
@@ -17,6 +18,8 @@ export class PaymentsService {
     @InjectModel(Payment.name)
     private paymentModel: Model<Payment>,
     private configService: ConfigService,
+    @Inject('NOTIFICATION_SERVICE') private notificationClient: ClientProxy, //
+
   ) {
     this.razorpay = new Razorpay({
       key_id: this.configService.get<string>('RAZORPAY_KEY_ID')!,
@@ -50,6 +53,8 @@ export class PaymentsService {
       amount: finalAmount,
       discount,
       pointsUsed: dto.pointsToUse || 0,
+      referralCode: dto.referralCode, // 
+
       status: PaymentStatus.PENDING,
     });
 
@@ -81,6 +86,9 @@ async verifyPayment(dto: VerifyPaymentDto) {
     razorpayOrderId: dto.razorpayOrderId,
   });
 
+  console.log('Payment record:', payment); // ← add this
+
+
   if (!payment) {
     throw new Error('Payment record not found');
   }
@@ -101,6 +109,8 @@ async verifyPayment(dto: VerifyPaymentDto) {
       studentId: dto.studentId,
       courseId: dto.courseId,
       pointsUsed: payment.pointsUsed,
+      referralCode: payment.referralCode, // ← add this
+
     }
   );
 
@@ -114,6 +124,30 @@ if (payment.pointsUsed > 0) {
     }
   );
 }
+
+//
+
+try {
+    const courseRes = await axios.get(
+      `${this.configService.get('COURSE_SERVICE_URL')}/courses/${dto.courseId}`
+    );
+    const courseName = courseRes.data?.title ?? 'your course';
+
+    const userRes = await axios.get(
+      `${this.configService.get('AUTH_SERVICE_URL')}/user/${dto.studentId}`
+    );
+    const studentEmail = userRes.data?.user?.email;
+
+    if (studentEmail) {
+      this.notificationClient.emit('student.enrolled', {
+        studentEmail,
+        courseName,
+      });
+    }
+  } catch (err) {
+    console.error('Failed to send notification:', err.message);
+  }
+  // 
 
   return { success: true, courseId: dto.courseId };
 }

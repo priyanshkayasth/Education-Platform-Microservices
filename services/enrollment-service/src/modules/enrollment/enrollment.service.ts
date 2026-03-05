@@ -113,33 +113,47 @@ export class EnrollmentService {
   }
 
 
-  async enrollAfterPayment(data: { studentId: string; courseId: string; pointsUsed: number }) {
-  try {
-    const enrollment = await this.enrollmentModel.create({
-      studentId: data.studentId,
-      courseId: data.courseId,
-    });
+  async enrollAfterPayment(data: { studentId: string; courseId: string; pointsUsed: number, referralCode?: string; }) {
+      console.log('enrollAfterPayment data:', data); // ← add this
 
-    // Deduct points if used
-    if (data.pointsUsed > 0) {
-      try {
-        await axios.patch('http://localhost:3001/user/referral/award-points', {
-          studentId: data.studentId,
-          points: -data.pointsUsed, // negative to deduct
-        });
-      } catch (err) {
-        console.error('Failed to deduct points:', err.message);
+    try {
+      const enrollment = await this.enrollmentModel.create({
+        studentId: data.studentId,
+        courseId: data.courseId,
+      });
+
+      // Award 20 referral points for paid course
+      if (data.referralCode) {
+        try {
+          await axios.patch('http://localhost:3001/user/referral/award-points', {
+            referralCode: data.referralCode,
+            points: 20,
+          });
+        } catch (err) {
+          console.error('Failed to award referral points:', err.message);
+        }
       }
-    }
 
-    return enrollment;
-  } catch (error) {
-    if (error.code === 11000) {
-      throw new ConflictException("Student already enrolled");
+      // Deduct points if used
+      if (data.pointsUsed > 0) {
+        try {
+          await axios.patch('http://localhost:3001/user/referral/award-points', {
+            studentId: data.studentId,
+            points: -data.pointsUsed, // negative to deduct
+          });
+        } catch (err) {
+          console.error('Failed to deduct points:', err.message);
+        }
+      }
+
+      return enrollment;
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException("Student already enrolled");
+      }
+      throw error;
     }
-    throw error;
   }
-}
 
   // Get enrollments by student
   async getEnrollmentByStudent(studentId: string) {

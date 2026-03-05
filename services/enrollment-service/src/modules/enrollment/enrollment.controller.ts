@@ -85,11 +85,12 @@ export class EnrollmentController {
   }
 
   @Post('enroll-after-payment')
-enrollAfterPayment(@Body() body: { studentId: string; courseId: string; pointsUsed: number }) {
+enrollAfterPayment(@Body() body: { studentId: string; courseId: string; pointsUsed: number ,referralCode?:string}) {
   return this.enrollmentService.enrollAfterPayment({
     studentId: body.studentId,
     courseId: body.courseId,
     pointsUsed: body.pointsUsed,
+    referralCode:body.referralCode
   });
 }
 }

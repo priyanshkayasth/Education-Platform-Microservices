@@ -60,6 +60,8 @@ const getYoutubeThumbnail = (videoId?: string) =>
   Component
 ===================== */
 
+
+
 export default function StudentDashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +74,8 @@ export default function StudentDashboard() {
   const enrolledCourses = courses.filter((c) => c.isEnrolled);
   const availableCourses = courses.filter((c) => !c.isEnrolled);
   const displayedCourses = activeTab === "enrolled" ? enrolledCourses : availableCourses;
+
+
 
   /* =====================
     Enroll
@@ -102,7 +106,9 @@ export default function StudentDashboard() {
 
   // Inside component
   const [searchParams] = useSearchParams();
-  const refCode = searchParams.get('ref');
+  // const refCode = searchParams.get('ref');
+  const refCode = searchParams.get('ref') ?? undefined;
+
   const refCourseId = searchParams.get('courseId');
 
   const { initiatePayment } = useRazorpay();
@@ -546,6 +552,7 @@ export default function StudentDashboard() {
                             course.id,
                             course.price,
                             pointsToUse,
+                            refCode,
                             () => {
                               setCourses(prev =>
                                 prev.map(c => c.id === course.id ? { ...c, isEnrolled: true } : c)
@@ -557,6 +564,111 @@ export default function StudentDashboard() {
                           Buy ₹{course.price}
                         </button>
                       </div>
+
+                      // <div>
+                      //   {/* PAID COURSE */}
+                      //   <div className="p-4">
+
+                      //     {/* Price Header */}
+                      //     <div className="flex items-center justify-between mb-3">
+                      //       <div>
+                      //         <span className="text-2xl font-bold">₹{course.price}</span>
+                      //         {pointsToUse >= 100 && (
+                      //           <span className="text-sm line-through text-gray-400 ml-2">
+                      //             ₹{course.price}
+                      //           </span>
+                      //         )}
+                      //       </div>
+                      //       {pointsToUse >= 100 && (
+                      //         <span className="badge badge-success text-white font-bold">
+                      //           {Math.min(50, Math.floor(pointsToUse / 100) * 10)}% OFF
+                      //         </span>
+                      //       )}
+                      //     </div>
+
+                      //     {/* Points Banner - Zomato style */}
+                      //     {user?.points && user.points >= 100 ? (
+                      //       <div className="bg-success/10 border border-success/30 rounded-lg p-3 mb-3">
+                      //         <div className="flex items-center gap-2 mb-2">
+                      //           <span className="text-lg">⭐</span>
+                      //           <span className="text-sm font-semibold text-success">
+                      //             You have {user.points} points available!
+                      //           </span>
+                      //         </div>
+                      //         <p className="text-xs text-base-content/60 mb-2">
+                      //           100 points = 10% discount (max 50%)
+                      //         </p>
+
+                      //         {/* Points Selector */}
+                      //         <div className="flex items-center gap-2">
+                      //           <button
+                      //             className="btn btn-xs btn-outline"
+                      //             onClick={() => setPointsToUse(Math.max(0, pointsToUse - 100))}
+                      //           >
+                      //             −
+                      //           </button>
+                      //           <div className="flex-1 text-center">
+                      //             <span className="font-bold text-primary">{pointsToUse}</span>
+                      //             <span className="text-xs text-base-content/60"> points</span>
+                      //           </div>
+                      //           <button
+                      //             className="btn btn-xs btn-outline"
+                      //             onClick={() => setPointsToUse(Math.min(user.points!, pointsToUse + 100))}
+                      //           >
+                      //             +
+                      //           </button>
+                      //         </div>
+
+                      //         {/* Discount Preview */}
+                      //         {pointsToUse >= 100 && (
+                      //           <div className="mt-2 flex justify-between text-sm">
+                      //             <span className="text-base-content/60">Discount:</span>
+                      //             <span className="text-success font-bold">
+                      //               -₹{Math.round((course.price * Math.min(50, Math.floor(pointsToUse / 100) * 10)) / 100)}
+                      //             </span>
+                      //           </div>
+                      //         )}
+
+                      //         {pointsToUse >= 100 && (
+                      //           <div className="flex justify-between text-sm font-bold mt-1 border-t border-success/20 pt-1">
+                      //             <span>Total:</span>
+                      //             <span className="text-primary">
+                      //               ₹{course.price - Math.round((course.price * Math.min(50, Math.floor(pointsToUse / 100) * 10)) / 100)}
+                      //             </span>
+                      //           </div>
+                      //         )}
+                      //       </div>
+                      //     ) : user?.points && user.points > 0 ? (
+                      //       <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mb-3 text-xs text-warning">
+                      //         ⭐ You have {user.points} points — earn more to unlock discounts! (need 100)
+                      //       </div>
+                      //     ) : null}
+
+                      //     {/* Buy Button */}
+                      //     <button
+                      //       className="btn btn-primary w-full"
+                      //       onClick={() => initiatePayment(
+                      //         course.id,
+                      //         course.price,
+                      //         pointsToUse,
+                      //         () => {
+                      //           setCourses(prev =>
+                      //             prev.map(c => c.id === course.id ? { ...c, isEnrolled: true } : c)
+                      //           );
+                      //           setPointsToUse(0);
+                      //           notificationService.success('Payment successful! Enrolled in course. 🎉');
+                      //         }
+                      //       )}
+                      //     >
+                      //       {pointsToUse >= 100
+                      //         ? `Pay ₹${course.price - Math.round((course.price * Math.min(50, Math.floor(pointsToUse / 100) * 10)) / 100)}`
+                      //         : `Buy Now ₹${course.price}`
+                      //       }
+                      //     </button>
+
+                      //   </div>
+                      // </div>
+
                     )}
                   </div>
                 ) : (

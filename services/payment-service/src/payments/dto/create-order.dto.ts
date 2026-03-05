@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateOrderDto {
   @IsMongoId()
@@ -8,6 +8,11 @@ export class CreateOrderDto {
   @IsNumber()
   @Min(0)
   amount: number;
+
+
+  @IsOptional()
+  @IsString()
+referralCode?: string;
 
   @IsOptional()
   @IsNumber()

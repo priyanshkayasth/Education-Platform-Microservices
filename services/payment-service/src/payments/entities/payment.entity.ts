@@ -27,8 +27,13 @@ export class Payment extends Document {
   @Prop({ default: 0 })
   discount: number;
 
+
   @Prop({ default: 0 })
   pointsUsed: number;
+
+    @Prop()
+  referralCode?: string;
+
 
   @Prop({ enum: PaymentStatus, default: PaymentStatus.PENDING })
   status: PaymentStatus;

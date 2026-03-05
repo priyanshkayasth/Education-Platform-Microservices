@@ -14,11 +14,13 @@ export const useRazorpay = () => {
     courseId: string,
     amount: number,
     pointsToUse: number = 0,
+    referralCode: string | undefined, 
+
     onSuccess: () => void,
   ) => {
     try {
       // Create order
-      const order = await paymentService.createOrder(courseId, amount, pointsToUse);
+      const order = await paymentService.createOrder(courseId, amount, pointsToUse,referralCode);
 
       // Open Razorpay checkout
       const options = {
