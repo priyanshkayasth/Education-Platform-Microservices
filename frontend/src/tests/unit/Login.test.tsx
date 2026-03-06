@@ -2,9 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import Login from "./Login";
 
-//  mock toast
+// mock toast
 vi.mock("react-hot-toast", () => ({
   default: {
     success: vi.fn(),
@@ -12,25 +11,27 @@ vi.mock("react-hot-toast", () => ({
   },
 }));
 
-//  mock auth service
+// mock auth service
 vi.mock("../../services/auth.service", () => ({
   authService: {
     login: vi.fn(),
   },
 }));
 
-//  mock auth context
+// mock auth context
 const mockRefetchUser = vi.fn();
 
 vi.mock("../../context/AuthContext", () => ({
   useAuth: () => ({
     refetchUser: mockRefetchUser,
+    user: null,
+    loading: false,
   }),
 }));
 
-//    import mocked service
 import { authService } from "../../services/auth.service";
 import toast from "react-hot-toast";
+import Login from "../../pages/auth/Login";
 
 const renderLogin = () =>
   render(
@@ -45,7 +46,9 @@ beforeEach(() => {
 
 describe("Login Page", () => {
   it("logs in successfully with valid credentials", async () => {
-    (authService.login as any).mockResolvedValueOnce({});
+    (authService.login as any).mockResolvedValueOnce({
+      user: { id: 1 },
+    });
 
     renderLogin();
 
@@ -60,7 +63,7 @@ describe("Login Page", () => {
     );
 
     await userEvent.click(
-      screen.getByRole("button", { name: /login/i })
+      screen.getByRole("button", { name: /^login$/i })
     );
 
     expect(authService.login).toHaveBeenCalledWith({
@@ -76,7 +79,7 @@ describe("Login Page", () => {
     renderLogin();
 
     await userEvent.click(
-      screen.getByRole("button", { name: /login/i })
+      screen.getByRole("button", { name: /^login$/i })
     );
 
     expect(toast.error).toHaveBeenCalledWith(
@@ -93,7 +96,6 @@ describe("Login Page", () => {
           message: "Invalid email or password",
         },
       },
-      isAxiosError: true,
     });
 
     renderLogin();
@@ -109,7 +111,7 @@ describe("Login Page", () => {
     );
 
     await userEvent.click(
-      screen.getByRole("button", { name: /login/i })
+      screen.getByRole("button", { name: /^login$/i })
     );
 
     expect(toast.error).toHaveBeenCalledWith(
@@ -134,7 +136,8 @@ describe("Login Page", () => {
       "password"
     );
 
-    const button = screen.getByRole("button", { name: /login/i });
+    const button = screen.getByRole("button", { name: /^login$/i });
+
     await userEvent.click(button);
 
     expect(button).toBeDisabled();
