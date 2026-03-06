@@ -18,4 +18,17 @@ export class NotificationConsumer {
       courseName,
     );
   }
+
+  @EventPattern('forgot.password')
+async handleForgotPassword(@Payload() data: any) {
+  console.log('Forgot password event received:', data);
+
+  const { studentEmail, resetLink, name } = data;
+
+  await this.emailService.sendPasswordResetEmail(
+    studentEmail,
+    resetLink,
+    name,
+  );
+}
 }

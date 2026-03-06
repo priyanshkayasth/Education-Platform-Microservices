@@ -26,7 +26,7 @@ export const awardReferralPoints = async (req: Request, res: Response) => {
 
     const user = await User.findOneAndUpdate(
       { referralCode },
-      { $inc: { points } },
+      { $inc: { points:Number(points) } },
       { new: true }
     );
 
@@ -48,10 +48,11 @@ export const awardReferralPoints = async (req: Request, res: Response) => {
 export const deductPoints = async (req: Request, res: Response) => {
   try {
     const { studentId, points } = req.body;
+    console.log('deductPoints called:', { studentId, points }); 
 
     const user = await User.findByIdAndUpdate(
       studentId,
-      { $inc: { points: -points } }, // ← negative to deduct
+      { $inc: { points: -Number(points) } }, 
       { new: true }
     );
 

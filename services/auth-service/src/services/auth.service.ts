@@ -4,6 +4,10 @@ import User from "../models/User.model.js";
 import { JWT_SECRET, JWT_SIGN_OPTIONS } from "../config/jwt.js";
 import { HttpError } from "../utils/httpError.js";
 
+
+import crypto from 'crypto';
+import { publishEvent } from '../config/rabbitmq.js';
+
 /* ---------- Interfaces ---------- */
 
 interface RegisterInput {
@@ -102,5 +106,61 @@ export const loginUser = async (
     },
   };
 };
+
+
+
+
+/* ---------- Forgot Password ---------- */
+
+export const forgotPassword = async (email: string) => {
+  const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+  if (!user) {
+    throw new HttpError('No account found with this email', 404);
+  }
+
+  // Generate reset token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const resetTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+  user.resetToken = resetToken;
+  user.resetTokenExpiry = resetTokenExpiry;
+  await user.save();
+
+  // Send email via Notification Service
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+  await publishEvent('notification_queue', {
+    type: 'forgot.password',
+    studentEmail: user.email,
+    resetLink,
+    name: user.name,
+  });
+
+  return { message: 'Password reset link sent to your email' };
+};
+
+/* ---------- Reset Password ---------- */
+
+export const resetPassword = async (token: string, newPassword: string) => {
+  const user = await User.findOne({
+    resetToken: token,
+    resetTokenExpiry: { $gt: new Date() }, // token not expired
+  });
+
+  if (!user) {
+    throw new HttpError('Invalid or expired reset token', 400);
+  }
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  user.password = hashed;
+  user.resetToken = null;
+  user.resetTokenExpiry = null;
+  await user.save();
+
+  return { message: 'Password reset successfully' };
+};
+
+
 
 export default registerUser;

@@ -11,6 +11,8 @@ export interface IUser extends Document {
   provider: "local" | "google";
   points: number;
   referralCode: string;
+  resetToken:string|null;
+  resetTokenExpiry:Date|null;
 }
 
 const userSchema = new Schema<IUser>(
@@ -42,6 +44,8 @@ const userSchema = new Schema<IUser>(
   },
    points: { type: Number, default: 0 },                          
     referralCode: { type: String, unique: true, sparse: true },
+     resetToken: { type: String, default: null },           
+    resetTokenExpiry: { type: Date, default: null },
 },
   { timestamps: true }
 );

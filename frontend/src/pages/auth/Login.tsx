@@ -32,16 +32,16 @@ export default function Login() {
 
 
 
-// Update the redirect after already logged in
-useEffect(() => {
-  if (!authLoading && user) {
-    const redirectTo = sessionStorage.getItem('redirectAfterLogin') || '/';
-    sessionStorage.removeItem('redirectAfterLogin');
-    navigate(redirectTo, { replace: true });
-  }
-}, [user, authLoading, navigate]);
+  // Update the redirect after already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      const redirectTo = sessionStorage.getItem('redirectAfterLogin') || '/';
+      sessionStorage.removeItem('redirectAfterLogin');
+      navigate(redirectTo, { replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
-// Update handleSubmit after successful login
+  // Update handleSubmit after successful login
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,47 +52,47 @@ useEffect(() => {
   };
 
   // 🔐 Email/Password Login
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoginLoading(true);
-  setError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setError(null);
 
-  try {
-    if (!form.email || !form.password) {
-      toast.error("All fields are required");
-      return;
+    try {
+      if (!form.email || !form.password) {
+        toast.error("All fields are required");
+        return;
+      }
+
+      const res = await authService.login(form);
+
+      //  invalid credentials
+      if (!res?.user) {
+        toast.error(res?.message || "Invalid email or password");
+        return;
+      }
+
+      //  valid login
+      await refetchUser();
+      toast.success("Login successful");
+
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        "Invalid email or password";
+
+      toast.error(message);
+
+    } finally {
+      setLoginLoading(false);
     }
-
-    const res = await authService.login(form);
-
-    //  invalid credentials
-    if (!res?.user) {
-      toast.error(res?.message || "Invalid email or password");
-      return;
-    }
-
-    //  valid login
-    await refetchUser();
-    toast.success("Login successful");
-
-  } catch (error: any) {
-  const message =
-    error?.response?.data?.message ||   
-    "Invalid email or password";        
-
-  toast.error(message);
-
-  } finally {
-    setLoginLoading(false);
-  }
-};
+  };
 
   //  Google Login
   const handleGoogleLogin = () => {
     setGoogleLoading(true);
     // window.location.href = "http://localhost:3001/auth/google";
     //  const baseUrl = import.meta.env.VITE_AUTH_BASE_URL;
-     const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
     window.location.href = `${baseUrl}/auth/google`;
   };
 
@@ -151,6 +151,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                 "Login"
               )}
             </button>
+
+
           </form>
 
           {/*  GOOGLE LOGIN BUTTON */}
@@ -166,7 +168,11 @@ const handleSubmit = async (e: React.FormEvent) => {
               "Login with Google"
             )}
           </button>
-
+          <div className="text-right">
+            <Link to="/forgot-password" className="text-sm link link-primary">
+              Forgot Password?
+            </Link>
+          </div>
           <div className="divider">OR</div>
 
           <p className="text-center text-sm">
@@ -175,7 +181,9 @@ const handleSubmit = async (e: React.FormEvent) => {
               Register
             </Link>
           </p>
+
         </div>
+
       </div>
     </div>
   );

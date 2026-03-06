@@ -32,6 +32,8 @@ export interface AddCoursePayload {
   description: string;
   lessons: LessonPayload[];
    isPublished?: boolean;
+   price?: number;    
+  isFree?: boolean;  
 }
 
 export interface UpdateCoursePayload

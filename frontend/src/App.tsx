@@ -22,6 +22,8 @@ import InstructorHome from "./pages/instructor/InstructorHome";
 import HomeRedirect from "./routes/HomeRedirect";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import ProfilePage from "./pages/ProfilePage";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 function App() {
   return (
@@ -46,15 +48,16 @@ function App() {
             </PublicRoute>
           }
         />
-       <Route path="/oauth-success" element={<OAuthSuccess />} />
-
+        <Route path="/oauth-success" element={<OAuthSuccess />} />
+        <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
 
           <Route path="/" element={<HomeRedirect />} />
           {/* PROFILE - accessible by all roles */}
-  <Route path="/profile" element={<ProfilePage />} />  
+          <Route path="/profile" element={<ProfilePage />} />
 
 
           {/* STUDENT */}

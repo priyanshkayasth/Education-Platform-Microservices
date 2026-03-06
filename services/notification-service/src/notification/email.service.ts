@@ -48,6 +48,38 @@ export class EmailService {
   }
 
 
+  async sendPasswordResetEmail(
+  email: string,
+  resetLink: string,
+  name: string,
+) {
+  try {
+    await this.transporter.sendMail({
+      from: `"EduPlatform" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: '🔐 Password Reset Request',
+      html: `
+        <h2>Hello ${name}!</h2>
+        <p>You requested to reset your password.</p>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetLink}" style="
+          background-color: #6419E6;
+          color: white;
+          padding: 12px 24px;
+          border-radius: 6px;
+          text-decoration: none;
+          display: inline-block;
+          margin: 16px 0;
+        ">Reset Password</a>
+        <p>This link expires in <b>15 minutes</b>.</p>
+        <p>If you didn't request this, ignore this email.</p>
+      `,
+    });
+  } catch (err) {
+    this.logger.error('Password reset email failed', err.message);
+  }
+}
+
 }
 
 

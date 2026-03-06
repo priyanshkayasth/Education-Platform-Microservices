@@ -146,6 +146,8 @@ export default function CourseForm({
     title: "",
     description: "",
     lessons: [],
+    price: 0,
+    isFree: true,
   });
 
   const [loading, setLoading] = useState(false);
@@ -209,8 +211,8 @@ export default function CourseForm({
       await onSubmit(form);
       toast.success("Course saved successfully");
     }
-      catch (err) {
-  toast.error("Failed to save course");
+    catch (err) {
+      toast.error("Failed to save course");
     } finally {
       setLoading(false);
     }
@@ -241,6 +243,35 @@ export default function CourseForm({
         }
         className="textarea textarea-bordered w-full"
       />
+
+      {/* Free or Paid */}
+      <div className="flex items-center gap-4">
+        <label className="text-sm font-medium">Course Type:</label>
+        <select
+          className="select select-bordered"
+          value={form.isFree ? "free" : "paid"}
+          onChange={(e) => setForm({
+            ...form,
+            isFree: e.target.value === "free",
+            price: e.target.value === "free" ? 0 : form.price,
+          })}
+        >
+          <option value="free">Free</option>
+          <option value="paid">Paid</option>
+        </select>
+      </div>
+
+      {/* Price - only show if paid */}
+      {!form.isFree && (
+        <input
+          type="number"
+          placeholder="Course Price (₹)"
+          value={form.price || ""}
+          onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+          className="input input-bordered w-full"
+          min={1}
+        />
+      )}
 
       {/* Lessons */}
       <div className="space-y-4">

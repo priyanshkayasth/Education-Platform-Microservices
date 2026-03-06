@@ -3,6 +3,9 @@ import * as authService from '../services/auth.service.js'
 import { HttpError } from "../utils/httpError.js";
 import jwt from "jsonwebtoken";
 
+import { forgotPassword, resetPassword } from '../services/auth.service.js';
+
+
 export const register = async (req: Request, res: Response) => {
     try {
         const { name, email, password } = req.body
@@ -213,5 +216,34 @@ export const oauthLogin = (req: Request, res: Response) => {
     });
   } catch (err) {
     return res.status(500).json({ message: "OAuth login failed" });
+  }
+};
+
+
+
+
+export const forgotPasswordController = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    const result = await forgotPassword(email);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    return res.status(error.status || 500).json({ message: error.message || 'Failed to send reset email' });
+  }
+};
+
+export const resetPasswordController = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: 'Token and new password are required' });
+    }
+    const result = await resetPassword(token, newPassword);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    return res.status(error.status || 500).json({ message: error.message || 'Failed to reset password' });
   }
 };

@@ -48,6 +48,15 @@ export class AuthRoutes {
     );
   }
 
+@Post('forgot-password')
+forgotPassword(@Req() req, @Res({ passthrough: true }) res) {
+  return this.proxy.forward(this.servicesConfig.authService, req, res);
+}
+
+@Post('reset-password')
+resetPassword(@Req() req, @Res({ passthrough: true }) res) {
+  return this.proxy.forward(this.servicesConfig.authService, req, res);
+}
 
 @Patch('change-password')
 @UseGuards(JwtAuthGuard, RolesGuard)
