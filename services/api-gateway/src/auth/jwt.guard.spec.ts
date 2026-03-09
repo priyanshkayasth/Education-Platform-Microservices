@@ -16,7 +16,7 @@ describe('JwtAuthGuard', () => {
 
   // helper to mock execution context
   const mockContext = (req: any) => ({
-    switchToHttp: () => ({   
+    switchToHttp: () => ({
       getRequest: () => req,
     }),
   });
@@ -130,5 +130,23 @@ describe('JwtAuthGuard', () => {
 
     expect(jwtService.verify).toHaveBeenCalledWith('cookie-token');
     expect(result).toBe(true);
+  });
+
+  // 6. payload uses userId instead of id
+  it('should handle payload with userId field instead of id', () => {
+    const req: any = {
+      headers: { authorization: 'Bearer valid-token' },
+      cookies: {},
+    };
+
+    (jwtService.verify as jest.Mock).mockReturnValue({
+      userId: 'user99', // ← userId not id
+      role: 'STUDENT',
+      email: 'test@mail.com',
+    });
+
+    guard.canActivate(mockContext(req) as any);
+
+    expect(req.user.userId).toBe('user99');
   });
 });

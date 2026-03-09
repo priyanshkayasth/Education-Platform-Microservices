@@ -128,4 +128,5 @@ describe('ProxyService (unit)', () => {
       service.forward('http://any', req, res),
     ).rejects.toThrow(HttpException);
   });
+  
 });
