@@ -70,12 +70,18 @@ export default function StudentDashboard() {
 
   const { user, isLoggingOut } = useAuth();
 
+  const [searchQuery, setSearchQuery] = useState("");
+
+
+
   // Filter courses based on active tab
   const enrolledCourses = courses.filter((c) => c.isEnrolled);
   const availableCourses = courses.filter((c) => !c.isEnrolled);
   const displayedCourses = activeTab === "enrolled" ? enrolledCourses : availableCourses;
 
-
+  const filteredCourses = displayedCourses.filter((course) =>
+    course.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   /* =====================
     Enroll
@@ -274,9 +280,20 @@ export default function StudentDashboard() {
 
         )}
 
+        {/* Search Bar */}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="🔍 Search courses..."
+            className="input input-bordered w-full max-w-md"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
         {/* Course Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayedCourses.map((course) => {
+          {filteredCourses.map((course) => {
             const lessons = course.lessons ?? [];
             const progressMap = new Map(
               course.progress?.lessonsProgress.map((p) => [
