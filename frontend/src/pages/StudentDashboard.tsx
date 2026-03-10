@@ -72,7 +72,18 @@ export default function StudentDashboard() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [suggestedCourses, setSuggestedCourses] = useState<Course[]>([]);
 
+  const getSuggestedCourses = (enrolledCourse: Course, allCourses: Course[]) => {
+    const keywords = enrolledCourse.title.toLowerCase().split(' ').filter(w => w.length > 3);
+    return allCourses
+      .filter(c => !c.isEnrolled && c.id !== enrolledCourse.id)
+      .filter(c => keywords.some(keyword => c.title.toLowerCase().includes(keyword)))
+      .slice(0, 3);
+  };
+
+
+  const [highlightedCourseId, setHighlightedCourseId] = useState<string | null>(null);
 
   // Filter courses based on active tab
   const enrolledCourses = courses.filter((c) => c.isEnrolled);
@@ -154,6 +165,15 @@ export default function StudentDashboard() {
       );
 
       notificationService.success("Enrolled successfully");
+
+      const enrolledCourse = courses.find(c => c.id === courseId);
+      if (enrolledCourse) {
+        const suggestions = getSuggestedCourses(
+          { ...enrolledCourse, isEnrolled: true },
+          courses.map(c => c.id === courseId ? { ...c, isEnrolled: true } : c)
+        );
+        setSuggestedCourses(suggestions);
+      }
     } catch (error: any) {
       if (error.response?.status === 409) {
         notificationService.info("You are already enrolled");
@@ -215,6 +235,14 @@ export default function StudentDashboard() {
     loadData();
   }, [user, isLoggingOut]);
 
+
+  useEffect(() => {
+    if (highlightedCourseId) {
+      const timer = setTimeout(() => setHighlightedCourseId(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightedCourseId]);
+
   /* =====================
     Render States
   ===================== */
@@ -250,6 +278,57 @@ export default function StudentDashboard() {
             Browse Courses ({availableCourses.length})
           </button>
         </div>
+
+        {suggestedCourses.length > 0 && (
+          <div className="mb-6 bg-base-100 border border-primary/20 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">✨</span>
+              <h3 className="font-semibold text-lg">You may also like!</h3>
+              <button
+                className="btn btn-xs btn-ghost ml-auto"
+                onClick={() => setSuggestedCourses([])}
+              >✕</button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {suggestedCourses.map((course) => (
+                <div key={course.id} className="border rounded-lg p-3 bg-base-200">
+                  <p className="font-medium text-sm">{course.title}</p>
+                  <p className="text-xs text-base-content/60 mt-1 line-clamp-2">{course.description}</p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-sm font-bold text-primary">
+                      {course.isFree ? 'Free' : `₹${course.price}`}
+                    </span>
+                    {/* <button
+                      className="btn btn-xs btn-primary"
+                      onClick={() => {
+                        setActiveTab('browse');
+                        setSuggestedCourses([]);
+                      }}
+                    >View</button> */}
+
+                    <button
+                      className="btn btn-xs btn-primary"
+                      onClick={() => {
+                        setActiveTab('browse');
+                        setSuggestedCourses([]);
+                        setHighlightedCourseId(course.id);
+                        // Scroll to course after tab switch
+                        setTimeout(() => {
+                          document.getElementById(`course-${course.id}`)?.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                          });
+                        }, 100);
+                      }}
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Empty States */}
         {displayedCourses.length === 0 && (
@@ -310,7 +389,15 @@ export default function StudentDashboard() {
             );
 
             return (
-              <div key={course.id} className="card bg-base-100 shadow border border-base">
+              // <div key={course.id}  className="card bg-base-100 shadow border border-base">
+              <div
+                key={course.id}
+                id={`course-${course.id}`}
+                className={`card bg-base-100 shadow border transition-all duration-500 ${highlightedCourseId === course.id
+                  ? 'border-primary border-2 shadow-lg shadow-primary/20'
+                  : 'border-base'
+                  }`}
+              >
                 <div className="card-body">
                   <h2 className="card-title">{course.title}</h2>
 
