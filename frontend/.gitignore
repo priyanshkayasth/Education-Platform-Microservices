@@ -25,11 +25,22 @@ dist-ssr
 
 # dotenv environment variable files
 .env
+.env.test
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
 
+.env.test
+.env.e2e
+
 # temp directory
 .temp
 .tmp
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

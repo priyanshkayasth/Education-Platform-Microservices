@@ -9,7 +9,7 @@ export const authService={
     async login(data:LoginRequest){
         // const response=await loginUser(data)
         // return response.data
-        return await loginUser(data);   // 🔥 just return directly
+        return await loginUser(data);   //  just return directly
 
     },
 

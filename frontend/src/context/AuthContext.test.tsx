@@ -33,7 +33,7 @@ const TestComponent = () => {
 
   return <div>User role: {user.role}</div>;
 };
-
+ 
 describe("AuthContext", () => {
   beforeEach(() => {
     vi.clearAllMocks();
