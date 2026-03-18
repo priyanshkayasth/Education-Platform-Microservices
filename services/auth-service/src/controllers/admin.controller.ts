@@ -29,6 +29,10 @@ export const updateUserRole = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+
+      // ADD THIS
+  console.log('req.user:', req.user);
+  console.log('x-user-id header:', req.headers['x-user-id']);
     if (!req.user) {
       res.status(401).json({ message: "Unauthorized" });
       return;
@@ -44,7 +48,7 @@ export const updateUserRole = async (
     }
 
     await adminService.updateUserRole(
-      req.user.id,
+  (req.user?.id ?? req.headers['x-user-id']) as string, // ← use header since gateway already verified it
       userIdParam, // now string
       role
     );

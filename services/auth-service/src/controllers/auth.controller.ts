@@ -4,76 +4,74 @@ import { HttpError } from "../utils/httpError.js";
 import jwt from "jsonwebtoken";
 
 export const register = async (req: Request, res: Response) => {
-    try {
-        const { name, email, password } = req.body
-        if (!name || !email || !password) {
-            return res.status(400).json({
-                message: 'All fields are required'
-            })
-        }
-
-        // const user = await authService.registerUser({ name, email, password, role:'STUDENT' })
-        const user = await authService.registerUser({ name, email, password })
-        return res.status(201).json({
-            message: 'User created successfully', user
-        })
-    } catch (error) {
-        if (error instanceof HttpError) {
-            return res.status(error.statusCode).json({
-                message: error.message
-            })
-        }
-
-        console.error(error)
-        return res.status(500).json({
-            message: 'Internal server error'
-        })
+  try {
+    const { name, email, password } = req.body
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: 'All fields are required'
+      })
     }
+
+    // const user = await authService.registerUser({ name, email, password, role:'STUDENT' })
+    const user = await authService.registerUser({ name, email, password })
+    return res.status(201).json({
+      message: 'User created successfully', user
+    })
+  } catch (error) {
+    if (error instanceof HttpError) {
+      return res.status(error.statusCode).json({
+        message: error.message
+      })
+    }
+
+    console.error(error)
+    return res.status(500).json({
+      message: 'Internal server error'
+    })
+  }
 
 }
 
 
 export const login = async (req: Request, res: Response) => {
-    try {
-        const { email, password } = req.body
-        if (!email || !password) {
-            return res.status(400).json({
-                message: 'All fields are required'
-            })
-        }
-        const data = await authService.loginUser(email, password)
+  try {
+    const { email, password } = req.body
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'All fields are required'
+      })
+    }
+    const data = await authService.loginUser(email, password)
 
-      res.cookie("access_token", data.token, {
+    res.cookie("access_token", data.token, {
       httpOnly: true,
-      sameSite: "none",
-      // secure: false, // true in prod
-      secure: true, // true in prod
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
       maxAge: 15 * 60 * 1000,
-      path:'/'
+      path: "/"
     });
-
     return res.status(200).json({
       user: data.user,
       message: "Login successful",
     });
-        // return res.status(200).json({
-        //     ...data,
-        //     message: 'Login succesfully'
-        // })
-    } catch (error) {
-        if (error instanceof HttpError) {
-            return res.status(error.statusCode).json({
-                message: error.message,
-            });
-        }
-
-        console.error("Error logging in:", error);
-        return res.status(500).json({
-            message: "Internal server error",
-        });
+    // return res.status(200).json({
+    //     ...data,
+    //     message: 'Login succesfully'
+    // })
+  } catch (error) {
+    if (error instanceof HttpError) {
+      return res.status(error.statusCode).json({
+        message: error.message,
+      });
     }
+
+    console.error("Error logging in:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
 }
- 
+
 
 // export const googleCallback = async (req: Request, res: Response) => {
 //   try {
@@ -150,8 +148,8 @@ export const googleCallback = async (req: Request, res: Response) => {
 
     // 👉 redirect with token (NO cookie here)
     return res.redirect(
-  `${FRONTEND_URL}/oauth-success?token=${encodeURIComponent(token)}`
-);
+      `${FRONTEND_URL}/oauth-success?token=${encodeURIComponent(token)}`
+    );
 
   } catch (error) {
     console.error("Google callback error:", error);
@@ -187,7 +185,7 @@ export const logout = (req: Request, res: Response) => {
     });
   }
 
-  
+
 
 }
 

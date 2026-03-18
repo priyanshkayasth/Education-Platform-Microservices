@@ -65,13 +65,13 @@ export const authenticate = (
   try {
 let token: string | null | undefined = null;
 
-    // 🔥 1. Authorization header (OAuth / mobile / cross-domain)
+    //  1. Authorization header (OAuth / mobile / cross-domain)
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith("Bearer ")) {
       token = authHeader.split(" ")[1];
     }
 
-    // 🔥 2. Cookie fallback (your existing login system)
+    //  2. Cookie fallback (your existing login system)
     if (!token && req.cookies?.access_token) {
       token = req.cookies.access_token;
     }
@@ -84,7 +84,7 @@ let token: string | null | undefined = null;
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayloadUser;
 
     req.user = {
-      id: decoded.id,
+      id: decoded.userId,
       role: decoded.role,
     };
 
