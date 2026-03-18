@@ -7,7 +7,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true ,envFilePath: [
+        `.env.${process.env.NODE_ENV}`,
+        `.env`
+      ],}),
 
     MongooseModule.forRootAsync({
       inject: [ConfigService],
@@ -18,11 +21,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           throw new Error('MONGO_URI is not defined');
         }
 
+        console.log(' Enrollment DB:', uri);  
+        console.log('NODE_ENV:', process.env.NODE_ENV);
+
         return { uri };
       },
     }),
 
-    EnrollmentModule,
+    EnrollmentModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

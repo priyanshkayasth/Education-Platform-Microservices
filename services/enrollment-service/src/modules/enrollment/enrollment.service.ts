@@ -44,37 +44,49 @@ export class EnrollmentService {
     studentId: string,
     dto: UpdateVideoProgressDto,
   ) {
+
+    //find student enrollment
     const enrollment = await this.enrollmentModel.findOne({
       studentId,
       courseId: dto.courseId,
     });
 
+    //if enrollment not found
+
     if (!enrollment) {
       throw new NotFoundException("Enrollment not found");
     }
 
+    //Calculate lesson progress percentage
+
     const percentage = Math.min(
       100,
-      Math.round((dto.watchedSeconds / dto.duration) * 100),
+      Math.round((dto.watchedSeconds / dto.duration) * 100), //Math.min(100) ensures it never exceeds 100%.
     );
 
+    //If watched >=90 mark lesson completed
     const completed = percentage >= 90;
 
+    //Check if lesson already exists
     const existing =
       enrollment.lessonsProgress.find(
         (p) => p.lessonId === dto.lessonId,
       );
 
+    //If Lesson progress exists -> update
     if (existing) {
+      //Progress can not decrese
       existing.watchedSeconds = Math.max(
         existing.watchedSeconds ?? 0,
         dto.watchedSeconds,
       );
+      //Update the fields
       existing.duration = dto.duration;
       existing.percentage = percentage;
       existing.completed = completed;
       existing.lastUpdated = new Date();
     } else {
+      //if lesson doesnt exist -> create
       enrollment.lessonsProgress.push({
         lessonId: dto.lessonId,
         watchedSeconds: dto.watchedSeconds,
@@ -90,6 +102,7 @@ export class EnrollmentService {
       (p) => p.completed,
     ).length;
 
+    //Overall Percentage
     enrollment.overallPercentage = Math.min(
       100,
       Math.round((completedCount / dto.totalLessons) * 100)
@@ -103,6 +116,7 @@ export class EnrollmentService {
     studentId: string,
     dto: UpdateAssignmentProgressDto,
   ) {
+    //Find Student enrollment
     const enrollment = await this.enrollmentModel.findOne({
       studentId,
       courseId: dto.courseId,
@@ -112,16 +126,19 @@ export class EnrollmentService {
       throw new NotFoundException("Enrollment not found");
     }
 
+    //if lesson already exists
     const existing =
       enrollment.lessonsProgress.find(
         (p) => p.lessonId === dto.lessonId,
       );
 
+    //If progress exists update
     if (existing) {
       existing.submitted = true;
       existing.completed = true;
       existing.lastUpdated = new Date();
     } else {
+      //If not create new entry
       enrollment.lessonsProgress.push({
         lessonId: dto.lessonId,
         submitted: true,
@@ -142,4 +159,6 @@ export class EnrollmentService {
 
     return enrollment.save();
   }
+
 }
+

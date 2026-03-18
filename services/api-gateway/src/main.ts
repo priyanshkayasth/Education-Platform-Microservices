@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import cookieParser from 'cookie-parser';
