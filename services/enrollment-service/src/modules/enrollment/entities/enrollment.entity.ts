@@ -39,3 +39,6 @@ export class Enrollment extends Document {
 
 export const EnrollmentSchema =
   SchemaFactory.createForClass(Enrollment);
+
+
+EnrollmentSchema.index({ studentId: 1, courseId: 1 }, { unique: true });

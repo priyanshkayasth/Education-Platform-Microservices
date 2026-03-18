@@ -6,12 +6,27 @@ import instructorRoutes from "./routes/instructor.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
-const app=express()
+import passport from './config/passport.js'
 
-app.use(cors())
+const app=express()
+app.set('trust proxy',1)
+
+const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 app.use(cookieParser()); 
 
 app.use(express.json())
+
+app.get("/healthz", (req, res) => {
+  res.status(200).send("OK");
+});
+
+app.use(passport.initialize());
 
 app.use('/auth',authRoutes)
 app.use('/user',userRoutes)
@@ -21,9 +36,6 @@ app.use("/student", studentRoutes);
 app.use("/instructor", instructorRoutes);
 app.use("/admin", adminRoutes);
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
 
 
 export default app

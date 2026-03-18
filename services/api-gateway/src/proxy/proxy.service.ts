@@ -4,8 +4,13 @@ import { Response } from 'express';
 
 @Injectable()
 export class ProxyService {
-  async forward(targetBaseUrl: string, req: any,res:Response) {
+  async forward(targetBaseUrl: string, req: any, res: Response) {
     console.log('🔥🔥 PROXY VERSION v3 RUNNING 🔥🔥');
+    console.log("➡️ Incoming req.originalUrl:", req.originalUrl);
+    console.log("➡️ Incoming req.url:", req.url);
+    console.log("x-user-id:", req.user?.userId);
+    console.log("x-user-role:", req.user?.role);
+
 
     // MUST exist
     console.log('USER FROM GUARD:', req.user);
@@ -13,6 +18,11 @@ export class ProxyService {
     const forwardPath = req.originalUrl
       .replace(/^\/api/, '')
       .replace(/\/$/, '');
+
+
+    console.log("➡️ Computed forwardPath:", forwardPath);
+    console.log("➡️ Final target URL:", `${targetBaseUrl}${forwardPath}`);
+
 
     // clone headers
     const headers = { ...req.headers };
@@ -24,6 +34,8 @@ export class ProxyService {
     delete headers['connection'];
 
     // console.log('HEADERS AFTER CLEAN:', headers);
+    headers['cookie'] = req.headers.cookie || "";
+
 
     try {
       const response = await axios({
@@ -38,13 +50,33 @@ export class ProxyService {
         params: req.query,
         timeout: 5000,
         withCredentials: true,
+        maxRedirects: 0,
+        validateStatus: () => true,
+        // validateStatus: (status) => status >= 200 && status < 300,
+
 
       });
-       // 🔥 FORWARD SET-COOKIE HEADER
+      console.log("🔁 RESPONSE STATUS:", response.status);
+      console.log("🔁 RESPONSE HEADERS:", response.headers);
+
+      if (response.status === 302 || response.status === 301) {
+        const location = response.headers['location'];
+
+        if (location) {
+          return res.redirect(location);
+        }
+      }
+      // 🔥 FORWARD SET-COOKIE HEADER
       const setCookie = response.headers["set-cookie"];
       if (setCookie) {
+        console.log("Forwarding set cookie",setCookie);
+        
         res.setHeader("set-cookie", setCookie);
       }
+
+      res.status(response.status
+        
+      )
 
       return response.data;
     } catch (error) {
@@ -55,6 +87,7 @@ export class ProxyService {
           error.response?.status || 500
         );
       }
+
 
       throw new HttpException('Internal server error', 500);
     }

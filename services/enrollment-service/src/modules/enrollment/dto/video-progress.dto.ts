@@ -14,4 +14,8 @@ export class UpdateVideoProgressDto {
   @IsNumber()
   @Min(1)
   duration: number;
+
+  @IsNumber()
+  @Min(1)
+  totalLessons: number;
 }

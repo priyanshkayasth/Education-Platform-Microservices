@@ -1,4 +1,4 @@
-import { PlusCircle, ViewIcon, Menu } from "lucide-react";
+import { PlusCircle, Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { NavLink, Link } from "react-router-dom";
 import { notificationService } from "../../services/notification.service";
@@ -40,7 +40,7 @@ export default function Navbar() {
               {isInstructor && (
                 <>
                   <li><NavLink to="/instructor/add-course">Add Course</NavLink></li>
-                  <li><NavLink to="/instructor/view-course">View Course</NavLink></li>
+                  {/* <li><NavLink to="/instructor/view-course">View Course</NavLink></li> */}
                 </>
               )}
             </ul>
@@ -52,11 +52,11 @@ export default function Navbar() {
           </Link>
 
           {/* Role Badge */}
-          {isInstructor && (
+          {/* {isInstructor && (
             <span className="badge badge-outline badge-primary">
               Instructor
             </span>
-          )}
+          )} */}
         </div>
 
         {/* CENTER (Desktop Nav) */}
@@ -92,8 +92,8 @@ export default function Navbar() {
 
         {/* RIGHT */}
         <div className="flex items-center gap-4">
-        
-          <ThemeToggle/>
+
+          <ThemeToggle />
           <button
             onClick={handleLogout}
             className="btn btn-sm btn-outline btn-primary"

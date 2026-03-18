@@ -1,4 +1,4 @@
-import { IsMongoId, IsNumber, IsOptional } from "class-validator";
+import { IsMongoId, IsNumber, IsOptional, Min } from "class-validator";
 
 export class UpdateAssignmentProgressDto {
   @IsMongoId()
@@ -10,4 +10,8 @@ export class UpdateAssignmentProgressDto {
   @IsOptional()
   @IsNumber()
   score?: number;
+
+  @IsNumber()
+  @Min(1)
+  totalLessons: number;
 }

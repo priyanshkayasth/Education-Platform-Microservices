@@ -23,7 +23,14 @@ export const adminService = {
     }
 
     const admin = await User.findById(adminId);
-    if (!admin || admin.role !== Role.ADMIN) {
+    // ADD THESE LOGS
+    console.log('adminId received:', adminId);
+    console.log('admin found:', admin);
+    console.log('admin.role:', admin?.role);
+    console.log('Role.ADMIN value:', Role.ADMIN);
+    console.log('match:', admin?.role === Role.ADMIN);
+
+    if (!admin || admin.role.toLowerCase() !== Role.ADMIN.toLowerCase()) {
       throw new HttpError("Unauthorized", 403);
     }
 

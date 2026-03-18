@@ -18,7 +18,7 @@ export default function Register() {
     })
 
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [, setError] = useState<string | null>(null)
     const navigate = useNavigate()
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,9 +50,19 @@ export default function Register() {
 
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data?.message || 'Registration failed')
+                const errorMessage = error.response?.data?.message;
+
+                // Show specific error message from backend
+                if (errorMessage) {
+                    toast.error(errorMessage);
+                } else if (error.response?.status === 409) {
+                    // Fallback for conflict errors (duplicate email)
+                    toast.error('Email already exists. Please use a different email or login.');
+                } else {
+                    toast.error('Registration failed. Please try again.');
+                }
             } else {
-                toast.error('Registration failed')
+                toast.error('Registration failed. Please try again.');
             }
         }
 

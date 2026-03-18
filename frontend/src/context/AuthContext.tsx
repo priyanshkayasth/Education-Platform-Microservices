@@ -64,10 +64,11 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 type User = {
   id: string;
-  name:String;
+  name: String;
   role: "student" | "instructor" | "admin";
 };
 
@@ -76,7 +77,7 @@ type AuthContextType = {
   loading: boolean;
   logout: () => Promise<void>;
   refetchUser: () => Promise<void>;
-    isLoggingOut: boolean;
+  isLoggingOut: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -85,9 +86,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const navigate = useNavigate()
 
-
-
+  
   const fetchUser = async () => {
     setLoading(true);
     try {
@@ -104,19 +105,21 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     fetchUser();
   }, []);
 
-const logout = async () => {
-  setIsLoggingOut(true)
-  try {
-    await api.post("/auth/logout")
-  } catch {
-    // ignore
-  } finally {
-    setUser(null)
-    setIsLoggingOut(false)
-    window.location.href = "/login";
+  const logout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await api.post("/auth/logout")
+    } catch {
+      // ignore
+    } finally {
+      localStorage.removeItem("access_token");
 
+      setUser(null)
+      setIsLoggingOut(false)
+      navigate("/login", { replace: true });
+
+    }
   }
-}
 
   return (
     <AuthContext.Provider

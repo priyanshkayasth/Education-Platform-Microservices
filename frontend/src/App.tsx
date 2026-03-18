@@ -19,6 +19,8 @@ import LessonPlayer from "./pages/LessonPlayer";
 import UsersPage from "./pages/admin/UserPage";
 import AdminHome from "./pages/admin/AdminHome";
 import InstructorHome from "./pages/instructor/InstructorHome";
+import HomeRedirect from "./routes/HomeRedirect";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 function App() {
   return (
@@ -43,9 +45,14 @@ function App() {
             </PublicRoute>
           }
         />
+       <Route path="/oauth-success" element={<OAuthSuccess />} />
+
 
         {/* PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
+
+          <Route path="/" element={<HomeRedirect />} />
+
 
           {/* STUDENT */}
           <Route
@@ -56,6 +63,7 @@ function App() {
               </RoleRoute>
             }
           />
+
 
           <Route
             path="/courses/:courseId/lessons/:lessonId"
@@ -75,7 +83,7 @@ function App() {
               </RoleRoute>
             }
           >
-            <Route index element={<InstructorHome/>} />
+            <Route index element={<InstructorHome />} />
             <Route path="add-course" element={<InstructorAddCourse />} />
             <Route path="view-course" element={<InstructorCourses />} />
             <Route path="edit-course/:courseId" element={<EditCourse />} />

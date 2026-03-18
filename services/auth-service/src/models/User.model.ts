@@ -6,6 +6,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: Role;
+  provider: "local" | "google";
 }
 
 const userSchema = new Schema<IUser>(
@@ -23,16 +24,19 @@ const userSchema = new Schema<IUser>(
       trim: true,
     },
     password: {
-      type: String,
-      minlength: 6,
-      required: true,
+      type: String
     },
     role: {
       type: String,
       enum: Object.values(Role),
       default: Role.STUDENT,
     },
-  },
+     provider: {
+    type: String,
+    enum: ["local", "google"],
+    default: "local",
+  }
+},
   { timestamps: true }
 );
 

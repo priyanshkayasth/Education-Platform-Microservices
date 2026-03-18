@@ -7,10 +7,11 @@
 // import { Roles } from 'src/auth/roles.decorator';
 // import { Role } from 'src/common/roles.enum';
 
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Req } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Req } from "@nestjs/common";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { CoursesService } from "./courses.service";
+import { Course } from "./entities/course.entity";
 
 // @UseGuards(JwtAuthGuard,RolesGuard)
 // @Controller('courses')
@@ -131,13 +132,49 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
-  create(@Body() dto: CreateCourseDto, @Req() req) {
-    const instructorId = req.headers['x-user-id'];
-    if (!instructorId) {
-      throw new BadRequestException('Instructor ID missing');
+  // async create(@Body() dto: CreateCourseDto, @Req() req):Promise<Course> {
+  //   const instructorId = req.headers['x-user-id'];
+  //   if (!instructorId) {
+  //     throw new BadRequestException('Instructor ID missing');
+  //   }
+  //   return this.coursesService.create(dto, instructorId);
+  // }
+
+  // async create(@Body() dto: CreateCourseDto, @Req() req) {
+  //   const userId = req.headers['x-user-id'];
+  //   const role = req.headers['x-user-role'];
+
+  //   if (!userId) {
+  //     throw new BadRequestException('User ID missing');
+  //   }
+
+  //   if (role !== 'INSTRUCTOR' && role !== 'ADMIN') {
+  //     throw new ForbiddenException('Only instructors or admins can create courses');
+  //   }
+
+  //   return this.coursesService.create(dto, userId);
+  // }
+
+   async create(@Body() dto: CreateCourseDto, @Req() req) {
+    const userId = req.headers['x-user-id'];
+    // const role = req.headers['x-user-role'];
+
+    const role = req.headers['x-user-role']?.toString().toUpperCase();
+
+  
+    if (!userId) {
+      throw new BadRequestException('User ID missing');
+    } 
+
+      if (role !== 'INSTRUCTOR' && role !== 'ADMIN') {
+      throw new ForbiddenException('Only instructors or admins can create courses');
     }
-    return this.coursesService.create(dto, instructorId);
+
+ 
+
+    return this.coursesService.create(dto, userId);
   }
+
 
   @Get('instructor')
   findByInstructor(@Req() req) {
@@ -167,16 +204,33 @@ export class CoursesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateCourseDto, @Req() req) {
+  update(@Param('id') id: string, @Body() dto: UpdateCourseDto, @Req() req):Promise<Course> {
     const instructorId = req.headers['x-user-id'];
     return this.coursesService.update(id, dto, instructorId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req) {
+  remove(@Param('id') id: string, @Req() req):Promise<Course> {
     const instructorId = req.headers['x-user-id'];
     return this.coursesService.remove(id, instructorId);
   }
+
+
+  @Post(':courseId/lessons/:lessonId/summarize')
+generateSummary(
+  @Param('courseId') courseId: string,
+  @Param('lessonId') lessonId: string,
+  @Body('youtubeUrl') youtubeUrl: string,
+  @Req() req,
+) {
+  // return this.coursesService.generateYoutubeSummary(
+  //   courseId,
+  //   lessonId,
+  //   youtubeUrl,
+  //   req.user.id,
+  // );
+}
+
 
 
 

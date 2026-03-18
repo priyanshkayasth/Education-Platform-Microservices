@@ -57,7 +57,7 @@ import { JwtAuthGuard } from "src/auth/jwt.guard";
 import { Roles } from "src/auth/roles.decorator";
 import { RolesGuard } from "src/auth/roles.guard";
 import { Role } from "src/common/constants/roles.enum";
-import { servicesConfig } from "src/config/services.config";
+import { ServicesConfig } from "src/config/services.config";
 import { ProxyService } from "src/proxy/proxy.service";
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -71,6 +71,8 @@ export class EnrollmentRoutes {
   constructor(private readonly proxy: ProxyService,
     @Inject('NOTIFICATION_SERVICE')
     private readonly notificationClient: ClientProxy,
+      private readonly servicesConfig: ServicesConfig,
+
   ) {}
 
   // ✅ STUDENT: enroll
@@ -111,7 +113,7 @@ async enroll(
 
   // 1️⃣ enroll student
   const enrollment = await this.proxy.forward(
-    servicesConfig.enrollmentService,
+    this.servicesConfig.enrollmentService,
     req,
     res,
   );
@@ -121,7 +123,7 @@ async enroll(
 
   try {
     const courseRes = await axios.get<{ title: string }>(
-      `${servicesConfig.courseService}/courses/${req.body.courseId}`,
+      `${this.servicesConfig.courseService}/courses/${req.body.courseId}`,
       {
         headers: {
           cookie: req.headers.cookie, // forward auth if course service needs it
@@ -158,7 +160,7 @@ async enroll(
     }
 
     return this.proxy.forward(
-      servicesConfig.enrollmentService,
+      this.servicesConfig.enrollmentService,
       req,
       res
     );
@@ -176,13 +178,13 @@ async enroll(
     }
 
     return this.proxy.forward(
-      servicesConfig.enrollmentService,
+      this.servicesConfig.enrollmentService,
       req,
       res
     );
   }
 
-  // ✅ STUDENT: update ASSIGNMENT progress
+  //  STUDENT: update ASSIGNMENT progress
   @Post("progress/assignment")
   @Roles(Role.STUDENT)
   updateAssignmentProgress(
@@ -194,7 +196,7 @@ async enroll(
     }
 
     return this.proxy.forward(
-      servicesConfig.enrollmentService,
+      this.servicesConfig.enrollmentService,
       req,
       res
     );

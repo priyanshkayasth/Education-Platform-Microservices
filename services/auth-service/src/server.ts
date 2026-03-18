@@ -1,7 +1,10 @@
+import './load-env.js';    
 import "dotenv/config";        
 import app from "./app.js";
 import connectDB from "./config/db.js";
 import { MONGO_URI } from './config/env.js';
+
+
 
 const PORT=process.env.PORT || 3001
 

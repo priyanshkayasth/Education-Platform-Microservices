@@ -53,9 +53,6 @@ type Course = {
 const getYoutubeThumbnail = (videoId?: string) =>
   videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
 
-const getYoutubeUrl = (videoId?: string) =>
-  videoId ? `https://www.youtube.com/watch?v=${videoId}` : "#";
-
 /* =====================
    Component
 ===================== */
@@ -64,8 +61,14 @@ export default function StudentDashboard() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"enrolled" | "browse">("enrolled");
 
   const { user, isLoggingOut } = useAuth();
+
+  // Filter courses based on active tab
+  const enrolledCourses = courses.filter((c) => c.isEnrolled);
+  const availableCourses = courses.filter((c) => !c.isEnrolled);
+  const displayedCourses = activeTab === "enrolled" ? enrolledCourses : availableCourses;
 
   /* =====================
      Enroll
@@ -156,14 +159,60 @@ export default function StudentDashboard() {
   ===================== */
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
 
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">All Courses</h1>
+      <div className="flex-1 p-6">
+        {/* Tabs Navigation */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">My Learning</h1>
+        </div>
 
+        <div className="tabs tabs-boxed mb-6 w-fit">
+          <button
+            className={`tab ${activeTab === "enrolled" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("enrolled")}
+          >
+            My Courses ({enrolledCourses.length})
+          </button>
+          <button
+            className={`tab ${activeTab === "browse" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("browse")}
+          >
+            Browse Courses ({availableCourses.length})
+          </button>
+        </div>
+
+        {/* Empty States */}
+        {displayedCourses.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">
+              {activeTab === "enrolled" ? "📚" : "🔍"}
+            </div>
+            <h3 className="text-xl font-semibold mb-2">
+              {activeTab === "enrolled"
+                ? "No Enrolled Courses Yet"
+                : "No Available Courses"}
+            </h3>
+            <p className="text-base-content/70">
+              {activeTab === "enrolled"
+                ? "Browse courses and enroll to start learning!"
+                : "Check back later for new courses."}
+            </p>
+            {activeTab === "enrolled" && availableCourses.length > 0 && (
+              <button
+                className="btn btn-primary mt-4"
+                onClick={() => setActiveTab("browse")}
+              >
+                Browse Courses
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Course Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => {
+          {displayedCourses.map((course) => {
             const lessons = course.lessons ?? [];
             const progressMap = new Map(
               course.progress?.lessonsProgress.map((p) => [
@@ -204,144 +253,155 @@ export default function StudentDashboard() {
                   )}
 
                   {/* 🎥 Videos */}
+                  {videoLessons.length > 0 && (
+                    <div className="mt-4">
+                      <div className="grid grid-cols-1 gap-3">
+                        {videoLessons.slice(0, 1).map((lesson) => {
+                          const progress = progressMap.get(lesson._id);
+                          const thumbnail = getYoutubeThumbnail(
+                            lesson.video?.videoId
+                          );
 
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    {videoLessons.map((lesson) => {
-                      const progress = progressMap.get(lesson._id);
-                      const thumbnail = getYoutubeThumbnail(
-                        lesson.video?.videoId
-                      );
+                          return (
+                            <Link
+                              key={lesson._id}
+                              to={
+                                course.isEnrolled
+                                  ? `/courses/${course.id}/lessons/${lesson._id}`
+                                  : "#"
+                              }
+                              className="group"
+                            >
+                              <div className="relative rounded overflow-hidden">
+                                {thumbnail ? (
+                                  <img
+                                    src={thumbnail}
+                                    alt={lesson.title}
+                                    className="w-full h-32 object-cover"
+                                  />
+                                ) : (
+                                  <div className="h-32 flex items-center justify-center bg-base-200">
+                                    Video
+                                  </div>
+                                )}
 
-                      return (
-                        <Link
-                          key={lesson._id}
-                          to={
-                            course.isEnrolled
-                              ? `/courses/${course.id}/lessons/${lesson._id}`
-                              : "#"
-                          }
-                          className="group"
-                        >
-                          <div className="relative rounded overflow-hidden">
-                            {thumbnail ? (
-                              <img
-                                src={thumbnail}
-                                alt={lesson.title}
-                                className="w-full h-32 object-cover"
-                              />
-                            ) : (
-                              <div className="h-32 flex items-center justify-center bg-base-200">
-                                Video
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="bg-black/60 text-white rounded-full p-2 text-xl">
+                                    ▶
+                                  </div>
+                                </div>
                               </div>
-                            )}
 
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="bg-black/60 text-white rounded-full p-2 text-xl">
-                                ▶
-                              </div>
-                            </div>
-                          </div>
+                              <p className="text-sm mt-1 text-center">
+                                {lesson.title}
+                              </p>
 
-                          <p className="text-sm mt-1 text-center">
-                            {lesson.title}
-                          </p>
+                              {course.isEnrolled && progress && (
+                                <div className="flex items-center justify-center gap-1 text-xs mt-1">
+                                  <progress
+                                    className="progress progress-success w-20"
+                                    value={progress.percentage ?? 0}
+                                    max={100}
+                                  />
+                                  {progress.completed ? "✅" : "⏳"}
+                                </div>
+                              )}
+                            </Link>
+                          );
+                        })}
+                      </div>
 
-                          {course.isEnrolled && progress && (
-                            <div className="flex items-center justify-center gap-1 text-xs mt-1">
-                              <progress
-                                className="progress progress-success w-20"
-                                value={progress.percentage ?? 0}
-                                max={100}
-                              />
-                              {progress.completed ? "✅" : "⏳"}
-                            </div>
-                          )}
-                        </Link>
-                      );
-                    })}
-                  </div>
+                      {/* View All Indicator */}
+                      {videoLessons.length > 1 && (
+                        <div className="text-center mt-3">
+                          <Link
+                            to={
+                              course.isEnrolled && videoLessons[1]
+                                ? `/courses/${course.id}/lessons/${videoLessons[1]._id}`
+                                : "#"
+                            }
+                            className="text-sm text-primary hover:underline cursor-pointer"
+                          >
+                            +{videoLessons.length - 1} more lesson{videoLessons.length - 1 !== 1 ? 's' : ''}
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
 
                   {/* 📝 Assignments */}
-                  <ul className="list-disc ml-5 space-y-2">
-                    {assignmentLessons.map((lesson) => {
-                      const progress = progressMap.get(lesson._id);
-                      const completed = progress?.completed;
+                  {assignmentLessons.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="text-sm font-semibold mb-2 flex items-center gap-1">
+                        <span>📝</span>
+                        <span>Assignments</span>
+                      </h4>
+                      <div className="space-y-2">
+                        {assignmentLessons.slice(0, 2).map((lesson) => {
+                          const progress = progressMap.get(lesson._id);
+                          const completed = progress?.completed;
 
-                      return (
-                        <li
-                          key={lesson._id}
-                          className="flex items-center gap-2"
-                        >
-                          <input
-                            type="checkbox"
-                            className="checkbox checkbox-success"
-                            checked={!!completed}
-                            disabled={!course.isEnrolled || completed}
-                            onChange={async () => {
-                              await EnrollmentService.updateAssignmentProgress({
-                                courseId: course.id,
-                                lessonId: lesson._id,
-                                score: lesson.assignment?.maxScore ?? 100,
-                              });
+                          return (
+                            <Link
+                              key={lesson._id}
+                              to={
+                                course.isEnrolled
+                                  ? `/courses/${course.id}/lessons/${lesson._id}`
+                                  : "#"
+                              }
+                              className={`block p-3 rounded-lg border transition-all ${completed
+                                ? "bg-success/10 border-success/30"
+                                : "bg-base-200 border-base-300 hover:border-primary"
+                                }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  {completed ? (
+                                    <span className="text-success text-xl">✓</span>
+                                  ) : (
+                                    <span className="text-base-content/50 text-xl">📄</span>
+                                  )}
+                                  <span
+                                    className={`text-sm font-medium ${completed ? "text-success" : ""
+                                      }`}
+                                  >
+                                    {lesson.title}
+                                  </span>
+                                </div>
+                                {!completed && course.isEnrolled && (
+                                  <span className="text-xs text-primary">
+                                    Start →
+                                  </span>
+                                )}
+                                {completed && (
+                                  <span className="text-xs text-success font-medium">
+                                    Completed
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
 
-                              setCourses((prev) =>
-                                prev.map((c) => {
-                                  if (c.id !== course.id) return c;
-
-                                  const existingProgress =
-                                    c.progress?.lessonsProgress || [];
-
-                                  const lessonAlreadyExists = existingProgress.find(
-                                    (p) => p.lessonId === lesson._id
-                                  );
-
-                                  const updatedLessonsProgress = lessonAlreadyExists
-                                    ? existingProgress.map((p) =>
-                                      p.lessonId === lesson._id
-                                        ? { ...p, completed: true }
-                                        : p
-                                    )
-                                    : [
-                                      ...existingProgress,
-                                      { lessonId: lesson._id, completed: true },
-                                    ];
-
-                                  const completedCount =
-                                    updatedLessonsProgress.filter(
-                                      (p) => p.completed
-                                    ).length;
-
-                                  const totalLessons = c.lessons.length;
-
-                                  return {
-                                    ...c,
-                                    progress: {
-                                      lessonsProgress: updatedLessonsProgress,
-                                      overallPercentage: Math.round(
-                                        (completedCount / totalLessons) * 100
-                                      ),
-                                    },
-                                  };
-                                })
-                              );
-                            }}
-
-                          />
-
-
-                          <span
-                            className={
-                              completed ? "line-through text-success" : ""
+                      {/* View All Indicator */}
+                      {assignmentLessons.length > 2 && (
+                        <div className="text-center mt-3">
+                          <Link
+                            to={
+                              course.isEnrolled && assignmentLessons[2]
+                                ? `/courses/${course.id}/lessons/${assignmentLessons[2]._id}`
+                                : "#"
                             }
+                            className="text-sm text-primary hover:underline cursor-pointer"
                           >
-                            {lesson.title}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-
+                            +{assignmentLessons.length - 2} more assignment{assignmentLessons.length - 2 !== 1 ? 's' : ''}
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {!course.isEnrolled ? (
@@ -364,7 +424,7 @@ export default function StudentDashboard() {
           })}
         </div>
       </div>
-      <Footer/>
-    </>
+      <Footer />
+    </div>
   );
 }

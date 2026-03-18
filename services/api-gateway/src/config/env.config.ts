@@ -1,10 +1,15 @@
-import * as dotenv from 'dotenv'
-dotenv.config()
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
-export const envconfig = {
-    port: process.env.PORT || 3000,
-    jwt: {
-        secret: process.env.JWT_SECRET || 'default_jwt_secret'
+@Injectable()
+export class EnvConfig {
+  constructor(private readonly config: ConfigService) {}
 
-    }
+  get port(): number {
+    return this.config.getOrThrow<number>('PORT');
+  }
+
+  get jwtSecret(): string {
+    return this.config.getOrThrow<string>('JWT_SECRET');
+  }
 }

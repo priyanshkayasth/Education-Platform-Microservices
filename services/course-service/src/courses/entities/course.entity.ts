@@ -27,7 +27,7 @@
 
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export enum LessonType {
   VIDEO = 'video',
@@ -91,8 +91,11 @@ export class Course extends Document {
 
   @Prop({ required: true })
   description: string;
+
   @Prop({ type: [LessonSchema], default: [] })
-  lessons: Lesson[];
+  // lessons: Lesson[];
+
+  lessons: Types.DocumentArray<Lesson>;
 
   @Prop({ required: true })
   instructorId: string;

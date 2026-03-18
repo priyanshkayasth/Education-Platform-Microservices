@@ -14,7 +14,7 @@ router.use(authenticate, authorize(Role.ADMIN));
 
 router.get("/dashboard", getAdminDashboard);
 router.get("/users", getAllUsers);
-router.patch("/users/:userId/role", updateUserRole);
+router.patch("/users/:userId/role",authenticate ,updateUserRole);
 router.get("/stats",getAdminStats)
 
 export default router

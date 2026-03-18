@@ -11,66 +11,126 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../common/constants/roles.enum';
-import { servicesConfig } from 'src/config/services.config';
+import { ServicesConfig } from 'src/config/services.config';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/api/auth')
 export class AuthRoutes {
-  constructor(private readonly proxy: ProxyService) { }
+  constructor(
+    private readonly proxy: ProxyService,
+    private readonly servicesConfig: ServicesConfig,
+  ) {}
 
-  //  PUBLIC ROUTES (NO GUARDS)
+  // PUBLIC ROUTES
 
   @Post('login')
   login(
     @Req() req,
-    @Res({ passthrough: true }) res
+    @Res({ passthrough: true }) res,
   ) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
 
   @Post('register')
   register(
     @Req() req,
-    @Res({ passthrough: true }) res
+    @Res({ passthrough: true }) res,
   ) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
 
 
-  //  PROTECTED ROUTES (GUARDED)
+@Post('oauth-login')
+oauthLogin(@Req() req, @Res({ passthrough: true }) res) {
+  return this.proxy.forward(
+    this.servicesConfig.authService,
+    req,
+    res,
+  );
+}
 
-  // @Get('me')
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
-  // me(@Req() req) {
-  //   return this.proxy.forward(servicesConfig.authService, req);
-  // }
 
-  @Get("me")
+@Get('google')
+google(@Req() req, @Res() res) {
+  req.url = '/auth/google';   // 
+
+   
+  console.log('🟢 HIT /api/auth/google');
+  console.log('➡️ rewritten req.url =', req.url);
+  console.log('➡️ originalUrl =', req.originalUrl);
+  return this.proxy.forward(
+    this.servicesConfig.authService,
+    req,
+    res
+  );
+}
+
+
+@Get('google/callback')
+googleCallback(@Req() req, @Res() res) {
+  const query = new URLSearchParams(req.query as any).toString();
+
+  req.url = `/auth/google/callback?${query}`;  // 
+
+    console.log('🟢 HIT /api/auth/google/callback');
+  console.log('➡️ rewritten req.url =', req.url);
+  console.log('➡️ originalUrl =', req.originalUrl);
+
+  return this.proxy.forward(
+    this.servicesConfig.authService,
+    req,
+    res
+  );
+}
+
+
+
+  // PROTECTED ROUTES
+
+  @Get('me')
   @UseGuards(JwtAuthGuard)
-  me(@Req() req, @Res({ passthrough: true }) res) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+  me(
+    @Req() req,
+    @Res({ passthrough: true }) res,
+  ) {
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
 
-
-  // OPTIONAL: admin/internal access
   @Get('user/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   getUserById(
     @Req() req,
-    @Res({ passthrough: true }) res
+    @Res({ passthrough: true }) res,
   ) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
 
   @Post('logout')
   logout(
     @Req() req,
-    @Res({ passthrough: true }) res
+    @Res({ passthrough: true }) res,
   ) {
-    return this.proxy.forward(servicesConfig.authService, req, res);
+    return this.proxy.forward(
+      this.servicesConfig.authService,
+      req,
+      res,
+    );
   }
-
 }
-
-
