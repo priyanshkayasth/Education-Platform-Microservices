@@ -88,6 +88,7 @@ describe('CoursesService', () => {
       expect(result.title).toBe('NestJS');
     });
   });
+  
 
   // ========================
   // FIND ALL (STUDENT VIEW)

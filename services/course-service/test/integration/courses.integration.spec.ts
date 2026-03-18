@@ -13,16 +13,24 @@ describe('Courses Integration Test', () => {
   let mongoServer!: MongoMemoryServer;
   let dbConnection: mongoose.Connection; // 
 
+  beforeEach(async () => {
+  if (!dbConnection) return; // skip if not connected yet
+  const collections = dbConnection.collections;
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
+});
+
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
+    mongoServer = await MongoMemoryServer.create(); 
 
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         MongooseModule.forRootAsync({
           useFactory: async () => ({
-            uri: mongoServer.getUri(),
+            uri: process.env.MONGO_URI!, 
           }),
         }),
         CoursesModule,
@@ -35,7 +43,7 @@ describe('Courses Integration Test', () => {
     await app.init();
     dbConnection = moduleFixture.get(getConnectionToken()); 
 
-
+    
 
   });
 
@@ -44,12 +52,12 @@ describe('Courses Integration Test', () => {
     if (mongoServer) await mongoServer.stop();
   });
 
-afterEach(async () => {
-    const collections = dbConnection.collections; // 
-    for (const key in collections) {
-      await collections[key].deleteMany({});
-    }
-  });
+// afterEach(async () => {
+//     const collections = dbConnection.collections; // 
+//     for (const key in collections) {
+//       await collections[key].deleteMany({});
+//     }
+  // });
   // ---------------------------
   // Create Course
   // ---------------------------

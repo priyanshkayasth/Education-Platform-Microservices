@@ -140,17 +140,37 @@ export class CoursesController {
   //   return this.coursesService.create(dto, instructorId);
   // }
 
-  async create(@Body() dto: CreateCourseDto, @Req() req) {
-    const userId = req.headers['x-user-id'];
-    const role = req.headers['x-user-role'];
+  // async create(@Body() dto: CreateCourseDto, @Req() req) {
+  //   const userId = req.headers['x-user-id'];
+  //   const role = req.headers['x-user-role'];
 
+  //   if (!userId) {
+  //     throw new BadRequestException('User ID missing');
+  //   }
+
+  //   if (role !== 'INSTRUCTOR' && role !== 'ADMIN') {
+  //     throw new ForbiddenException('Only instructors or admins can create courses');
+  //   }
+
+  //   return this.coursesService.create(dto, userId);
+  // }
+
+   async create(@Body() dto: CreateCourseDto, @Req() req) {
+    const userId = req.headers['x-user-id'];
+    // const role = req.headers['x-user-role'];
+
+    const role = req.headers['x-user-role']?.toString().toUpperCase();
+
+  
     if (!userId) {
       throw new BadRequestException('User ID missing');
-    }
+    } 
 
-    if (role !== 'INSTRUCTOR' && role !== 'ADMIN') {
+      if (role !== 'INSTRUCTOR' && role !== 'ADMIN') {
       throw new ForbiddenException('Only instructors or admins can create courses');
     }
+
+ 
 
     return this.coursesService.create(dto, userId);
   }
